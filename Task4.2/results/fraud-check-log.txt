@@ -1,0 +1,59 @@
+23:41:45.712 info: FraudCheckService.Checks.FraudChecks[0] 482fb62f-c86d-41ea-ba8d-d24536eb7934 антифрод: ALLOW
+23:41:45.718 info: FraudCheckService.Checks.FraudChecks[0] 482fb62f-c86d-41ea-ba8d-d24536eb7934 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:41:46.195 info: FraudCheckService.Checks.FraudChecks[0] 024b0cc3-a48b-483d-834f-345d0821f150 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:41:46.199 info: FraudCheckService.Checks.FraudChecks[0] 024b0cc3-a48b-483d-834f-345d0821f150 антифрод: DENY
+23:41:46.797 info: FraudCheckService.Checks.FraudChecks[0] a60cd2b1-5dca-4935-9640-153cbed00230 антифрод: MANUAL
+23:41:46.797 info: FraudCheckService.Checks.FraudChecks[0] a60cd2b1-5dca-4935-9640-153cbed00230 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:42:08.312 info: FraudCheckService.Checks.FraudChecks[0] a60cd2b1-5dca-4935-9640-153cbed00230 решение оператора ALLOW сохранено, итоговое решение ALLOW
+23:42:09.494 info: FraudCheckService.Checks.FraudChecks[0] d90a4f66-a7d8-4894-aa49-39d2562c480b антифрод: MANUAL
+23:42:09.495 info: FraudCheckService.Checks.FraudChecks[0] d90a4f66-a7d8-4894-aa49-39d2562c480b внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:42:12.340 info: FraudCheckService.Checks.FraudChecks[0] d90a4f66-a7d8-4894-aa49-39d2562c480b решение оператора DENY сохранено, итоговое решение DENY
+23:42:13.503 info: FraudCheckService.Checks.FraudChecks[0] b016272c-8306-49d0-bd2d-ebd5e51417b6 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:42:16.778 info: FraudCheckService.Checks.FraudChecks[0] 187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:42:16.779 info: FraudCheckService.Checks.FraudChecks[0] 187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 антифрод: MANUAL
+23:42:27.399 info: FraudCheckService.Checks.FraudChecks[0] f6ff744d-b27c-4ac8-868e-27248a2a02d6 антифрод: ALLOW
+23:42:27.399 info: FraudCheckService.Checks.FraudChecks[0] f6ff744d-b27c-4ac8-868e-27248a2a02d6 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:42:29.001 info: FraudCheckService.Checks.FraudChecks[0] 34bf0abe-c8cb-4346-bb08-a075d3321350 антифрод: DENY
+23:42:29.002 info: FraudCheckService.Checks.FraudChecks[0] 34bf0abe-c8cb-4346-bb08-a075d3321350 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:43:28.547 info: FraudCheckService.Checks.FraudChecks[0] 009f1102-2e5a-4c53-9f28-aca04940845f антифрод: ALLOW
+23:43:28.548 info: FraudCheckService.Checks.FraudChecks[0] 009f1102-2e5a-4c53-9f28-aca04940845f внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:43:28.628 info: FraudCheckService.Checks.FraudChecks[0] 9be60a85-7827-4d18-8b7a-5078446c8091 антифрод: ALLOW
+23:43:31.530 info: FraudCheckService.Checks.FraudChecks[0] 9be60a85-7827-4d18-8b7a-5078446c8091 внешние проверки: AML ALLOW (cache), лимиты и GeoRisk ALLOW
+23:43:31.903 info: FraudCheckService.Checks.FraudChecks[0] 0fab9700-58dc-45c1-99e5-49b4a1f03425 антифрод: ALLOW
+23:43:34.803 info: FraudCheckService.Checks.FraudChecks[0] 0fab9700-58dc-45c1-99e5-49b4a1f03425 внешние проверки: AML ALLOW (cache), лимиты и GeoRisk нет ответа
+23:43:35.170 info: FraudCheckService.Checks.FraudChecks[0] 17f1af64-f407-43ab-a531-6f78a1e9b14e антифрод: ALLOW
+23:43:37.969 info: FraudCheckService.Checks.FraudChecks[0] 17f1af64-f407-43ab-a531-6f78a1e9b14e внешние проверки: AML DENY (provider), лимиты и GeoRisk нет ответа
+23:43:38.536 info: FraudCheckService.Checks.FraudChecks[0] 90b10d4e-f64b-4c39-a378-80865f29cc46 антифрод: ALLOW
+23:43:38.539 warn: FraudCheckService.Checks.AmlScreeningCache[0] кеш AML недоступен (RedisConnectionException): последнего результата скрининга client-09 → seller-09 нет
+23:43:38.539 warn: FraudCheckService.Checks.AmlScreeningCache[0] кеш AML недоступен (RedisConnectionException): результат скрининга client-09 → seller-09 не сохранён
+23:43:38.539 info: FraudCheckService.Checks.FraudChecks[0] 90b10d4e-f64b-4c39-a378-80865f29cc46 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:43:41.860 info: FraudCheckService.Checks.FraudChecks[0] 0b168ffd-a62d-4f18-a3d3-e4516bd8f67f антифрод: ALLOW
+23:43:41.862 info: FraudCheckService.Checks.FraudChecks[0] 0b168ffd-a62d-4f18-a3d3-e4516bd8f67f внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:44:05.042 info: FraudCheckService.Checks.FraudChecks[0] b6f099f4-1379-4982-b329-4f2776e60656 антифрод: ALLOW
+23:44:05.042 info: FraudCheckService.Checks.FraudChecks[0] b6f099f4-1379-4982-b329-4f2776e60656 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:44:05.634 info: FraudCheckService.Checks.FraudChecks[0] 139b24fe-cf9d-48ec-9bae-bebb974590d8 антифрод: ALLOW
+23:44:05.635 info: FraudCheckService.Checks.FraudChecks[0] 139b24fe-cf9d-48ec-9bae-bebb974590d8 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:44:19.399 info: FraudCheckService.Checks.FraudChecks[0] b45c11e0-eb5e-4321-a06e-30c010ef2576 антифрод: ALLOW
+23:44:19.399 info: FraudCheckService.Checks.FraudChecks[0] b45c11e0-eb5e-4321-a06e-30c010ef2576 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:44:54.755 info: FraudCheckService.Checks.FraudChecks[0] 2ea58de2-015a-472c-b17d-970921b07557 антифрод: ALLOW
+23:44:54.755 info: FraudCheckService.Checks.FraudChecks[0] 2ea58de2-015a-472c-b17d-970921b07557 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:44:55.368 info: FraudCheckService.Checks.FraudChecks[0] 883293a1-8ef7-450a-b717-1649ffa1ed0e антифрод: ALLOW
+23:44:55.369 info: FraudCheckService.Checks.FraudChecks[0] 883293a1-8ef7-450a-b717-1649ffa1ed0e внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:00.723 info: FraudCheckService.Checks.FraudChecks[0] 0e1a5116-cf80-4eba-a24e-45466cd403d2 антифрод: MANUAL
+23:45:02.726 info: FraudCheckService.Checks.FraudChecks[0] 0e1a5116-cf80-4eba-a24e-45466cd403d2 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk DENY
+23:45:06.093 info: FraudCheckService.Checks.FraudChecks[0] 7d8d7353-5cf0-4a20-8341-eae5cb3141bb антифрод: правила сработали поздно, сохранён запрет, ответа вызывающему нет
+23:45:06.093 info: FraudCheckService.Checks.FraudChecks[0] 7d8d7353-5cf0-4a20-8341-eae5cb3141bb внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:09.328 info: FraudCheckService.Checks.FraudChecks[0] 62633327-dae9-4baf-9c31-d8ba908ae167 антифрод: ALLOW
+23:45:09.329 info: FraudCheckService.Checks.FraudChecks[0] 62633327-dae9-4baf-9c31-d8ba908ae167 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:15.621 info: FraudCheckService.Checks.FraudChecks[0] dc45c167-888a-4490-bad4-109f4e076c43 антифрод: ALLOW
+23:45:15.627 info: FraudCheckService.Checks.FraudChecks[0] dc45c167-888a-4490-bad4-109f4e076c43 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:22.091 info: FraudCheckService.Checks.FraudChecks[0] b1d2a73f-e1c5-486a-95e5-e53d9fd71446 антифрод: ALLOW
+23:45:22.091 info: FraudCheckService.Checks.FraudChecks[0] b1d2a73f-e1c5-486a-95e5-e53d9fd71446 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:27.057 info: FraudCheckService.Checks.FraudChecks[0] c9023131-bb33-4856-aee4-eda083d4cc35 антифрод: ALLOW
+23:45:27.057 info: FraudCheckService.Checks.FraudChecks[0] c9023131-bb33-4856-aee4-eda083d4cc35 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:37.534 info: FraudCheckService.Checks.FraudChecks[0] 3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc антифрод: ALLOW
+23:45:37.535 info: FraudCheckService.Checks.FraudChecks[0] 3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:47.124 info: FraudCheckService.Checks.FraudChecks[0] a0878da5-f850-4409-b4f1-e90ae5218c1d антифрод: ALLOW
+23:45:47.124 info: FraudCheckService.Checks.FraudChecks[0] a0878da5-f850-4409-b4f1-e90ae5218c1d внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW
+23:45:52.009 info: FraudCheckService.Checks.FraudChecks[0] 41d63e1c-dd46-4480-8c8d-43a10eea7aa1 антифрод: ALLOW
+23:45:52.009 info: FraudCheckService.Checks.FraudChecks[0] 41d63e1c-dd46-4480-8c8d-43a10eea7aa1 внешние проверки: AML ALLOW (provider), лимиты и GeoRisk ALLOW

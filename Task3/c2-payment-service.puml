@@ -1,0 +1,48 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_TOP_DOWN()
+skinparam nodesep 45
+skinparam ranksep 70
+skinparam defaultFontName Arial
+skinparam dpi 110
+show stereotype
+
+title OrchestrPay — C2, вариант 2: оркестрация внутри Payment Service
+
+Person(client, "Клиент")
+System_Ext(market, "Маркетплейс", "Заказ и запуск оплаты")
+Person(operator, "Оператор безопасности")
+Person(sre, "Дежурный SRE")
+
+System_Boundary(op, "OrchestrPay") {
+  Container(payment, "Payment Service", "Сервис, клиент Zeebe", "Платежи и денежные операции;\nBPMN-процесс оплаты\nи обработчики его шагов")
+  Container(camunda, "Camunda 8", "Zeebe, Operate, Tasklist", "Состояние процессов, таймеры,\nповторы, инциденты,\nзадачи оператора")
+  Container(fraud, "FraudCheck Service", "Сервис", "Антифрод-правила\nи внешние проверки")
+  Container(notif, "Notification Service", "Сервис", "Уведомления клиенту\nи в безопасность")
+  ContainerDb(payment_db, "БД платежей", "PostgreSQL", "Платежи и журнал операций")
+  ContainerDb(cache, "Кеш проверок", "Redis", "Результаты внешних проверок,\nлимиты, фрод-метки")
+}
+
+System_Ext(bank, "Банк", "Заморозка, списание\nс переводом, разморозка")
+System_Ext(providers, "Внешние проверки", "AML, GeoRisk,\ncompliance, лимиты")
+System_Ext(security, "Система безопасности", "Анализ подозрительных\nплатежей")
+
+Rel_R(client, market, "Оформляет заказ\nи платит")
+Rel_D(market, payment, "Начать платёж", "REST")
+Rel(payment, camunda, "Запускает процесс,\nвыполняет его шаги", "gRPC")
+Rel_D(operator, camunda, "Решает ручные проверки", "Tasklist")
+Rel_D(sre, camunda, "Разбирает инциденты", "Operate")
+Rel_D(payment, fraud, "Антифрод\nи внешние проверки", "REST")
+Rel_D(payment, notif, "Уведомить клиента\nи безопасность", "REST")
+Rel_D(payment, payment_db, "Читает и пишет", "SQL")
+Rel_D(payment, bank, "Денежные операции", "API банка")
+Rel_D(fraud, cache, "Читает и пишет", "Redis")
+Rel_D(fraud, providers, "Запросы проверок", "API провайдеров")
+Rel_D(notif, security, "Запрещённые платежи\nи проведённые по cut-off")
+Rel_U(notif, client, "Итог платежа", "push, email")
+Lay_R(payment, camunda)
+Lay_R(payment_db, fraud)
+Lay_R(fraud, notif)
+Lay_R(bank, providers)
+Lay_R(providers, security)
+@enduml

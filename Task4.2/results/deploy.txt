@@ -1,0 +1,26 @@
+$ zbctl deploy process.bpmn
+{
+  "key": "2251799813685287",
+  "processes": [
+    {
+      "bpmnProcessId": "payment-process",
+      "version": 1,
+      "processDefinitionKey": "2251799813685249",
+      "resourceName": "/process.bpmn",
+      "tenantId": "<default>"
+    }
+  ]
+}
+$ zbctl deploy post-factum-refund.bpmn
+{
+  "key": "2251799813685288",
+  "processes": [
+    {
+      "bpmnProcessId": "post-factum-refund",
+      "version": 1,
+      "processDefinitionKey": "2251799813685250",
+      "resourceName": "/post-factum-refund.bpmn",
+      "tenantId": "<default>"
+    }
+  ]
+}

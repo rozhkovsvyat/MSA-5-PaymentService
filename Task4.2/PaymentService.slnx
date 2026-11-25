@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PaymentService/PaymentService.csproj" />
+    <Project Path="src/FraudCheckService/FraudCheckService.csproj" />
+    <Project Path="src/NotificationService/NotificationService.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PaymentService.Tests/PaymentService.Tests.csproj" />
+  </Folder>
+</Solution>
