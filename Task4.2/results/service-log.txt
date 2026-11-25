@@ -1,0 +1,364 @@
+23:41:33.480 INFO  payment-service запущен, схема БД актуальна
+23:41:33.745 INFO  подключён к Zeebe 8.5.22
+23:41:34.459 INFO  схемы развёрнуты: payment-process v1, post-factum-refund v1
+23:41:34.468 INFO  обработчики шагов: CREATE_PAYMENT, HOLD_FUNDS, TRANSFER_TO_COUNTERPARTY, CHECK_TRANSFER_STATUS, RELEASE_FUNDS, REJECT_PAYMENT, CHECK_FRAUD, CHECK_EXTERNAL, RECORD_REVIEW_DECISION, RECHECK_DECISIONS, NOTIFY_CLIENT, NOTIFY_SECURITY, CREATE_REFUND, REFUND_TO_CLIENT, CHECK_REFUND_STATUS, RECOVER_FROM_COUNTERPARTY
+23:41:45.558 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 платёж принят, процесс запущен сообщением payment-initiated
+23:41:45.571 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 CREATE_PAYMENT: платёж создан, 1500 RUB, клиент client-01 → продавец seller-01
+23:41:45.612 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:41:45.718 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 CHECK_FRAUD: антифрод ответил ALLOW за 95 мс
+23:41:45.720 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:41:45.762 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 227 мс от приёма
+23:41:45.811 INFO  482fb62f-c86d-41ea-ba8d-d24536eb7934 NOTIFY_CLIENT: client-01 — «платёж проведён»
+23:41:46.174 INFO  024b0cc3-a48b-483d-834f-345d0821f150 платёж принят, процесс запущен сообщением payment-initiated
+23:41:46.177 INFO  024b0cc3-a48b-483d-834f-345d0821f150 CREATE_PAYMENT: платёж создан, 2500 RUB, клиент client-02 → продавец seller-02
+23:41:46.184 INFO  024b0cc3-a48b-483d-834f-345d0821f150 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:41:46.196 INFO  024b0cc3-a48b-483d-834f-345d0821f150 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:41:46.199 INFO  024b0cc3-a48b-483d-834f-345d0821f150 CHECK_FRAUD: антифрод ответил DENY за 2 мс
+23:41:46.231 INFO  024b0cc3-a48b-483d-834f-345d0821f150 RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:41:46.241 INFO  024b0cc3-a48b-483d-834f-345d0821f150 REJECT_PAYMENT: платёж отклонён, причина FRAUD
+23:41:46.247 INFO  024b0cc3-a48b-483d-834f-345d0821f150 NOTIFY_CLIENT: client-02 — «платёж отклонён, деньги разморожены»
+23:41:46.257 INFO  024b0cc3-a48b-483d-834f-345d0821f150 NOTIFY_SECURITY: служба безопасности — «платёж отклонён, причина FRAUD»
+23:41:46.779 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 платёж принят, процесс запущен сообщением payment-initiated
+23:41:46.780 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 CREATE_PAYMENT: платёж создан, 32000 RUB, клиент client-03 → продавец seller-03
+23:41:46.788 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:41:46.798 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:41:46.798 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 CHECK_FRAUD: антифрод ответил MANUAL за 2 мс
+23:42:08.313 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 RECORD_REVIEW_DECISION: решение оператора ALLOW сохранено в FraudCheck, итоговое решение ALLOW
+23:42:08.330 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 21555 мс от приёма
+23:42:08.337 INFO  a60cd2b1-5dca-4935-9640-153cbed00230 NOTIFY_CLIENT: client-03 — «платёж проведён»
+23:42:09.479 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b платёж принят, процесс запущен сообщением payment-initiated
+23:42:09.481 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b CREATE_PAYMENT: платёж создан, 45000 RUB, клиент client-04 → продавец seller-04
+23:42:09.487 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b HOLD_FUNDS: деньги заморожены на счёте клиента
+23:42:09.495 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:42:09.495 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b CHECK_FRAUD: антифрод ответил MANUAL за 1 мс
+23:42:12.341 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b RECORD_REVIEW_DECISION: решение оператора DENY сохранено в FraudCheck, итоговое решение DENY
+23:42:12.354 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:42:12.359 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b REJECT_PAYMENT: платёж отклонён, причина MANUAL_REVIEW
+23:42:12.364 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b NOTIFY_CLIENT: client-04 — «платёж отклонён, деньги разморожены»
+23:42:12.369 INFO  d90a4f66-a7d8-4894-aa49-39d2562c480b NOTIFY_SECURITY: служба безопасности — «платёж отклонён, причина MANUAL_REVIEW»
+23:42:13.480 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 платёж принят, процесс запущен сообщением payment-initiated
+23:42:13.481 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 CREATE_PAYMENT: платёж создан, 1200 RUB, клиент client-05 → продавец seller-05
+23:42:13.489 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:42:13.504 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:42:16.504 WARN  b016272c-8306-49d0-bd2d-ebd5e51417b6 CHECK_FRAUD: антифрод не ответил за 3 с → cut-off, разрешено без ответа проверки
+23:42:16.527 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 RECHECK_DECISIONS: запретов нет (антифрод без решения, внешние ALLOW) → проводим
+23:42:16.535 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу (по cut-off), платёж проведён за 3061 мс от приёма
+23:42:16.542 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 NOTIFY_CLIENT: client-05 — «платёж проведён»
+23:42:16.549 INFO  b016272c-8306-49d0-bd2d-ebd5e51417b6 NOTIFY_SECURITY: служба безопасности — «платёж проведён без ответа проверки (молчали: антифрод)»
+23:42:16.764 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 платёж принят, процесс запущен сообщением payment-initiated
+23:42:16.766 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 CREATE_PAYMENT: платёж создан, 51000 RUB, клиент client-55 → продавец seller-55
+23:42:16.771 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:42:16.779 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:42:16.780 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 CHECK_FRAUD: антифрод ответил MANUAL за 2 мс
+23:42:27.182 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 RECHECK_DECISIONS: запретов нет (антифрод без решения, внешние ALLOW) → проводим
+23:42:27.195 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу (по cut-off), платёж проведён за 10434 мс от приёма
+23:42:27.201 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 NOTIFY_CLIENT: client-55 — «платёж проведён»
+23:42:27.208 INFO  187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 NOTIFY_SECURITY: служба безопасности — «платёж проведён без ответа проверки (молчали: оператор)»
+23:42:27.383 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 платёж принят, процесс запущен сообщением payment-initiated
+23:42:27.385 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 CREATE_PAYMENT: платёж создан, 3300 RUB, клиент client-06 → продавец seller-06
+23:42:27.391 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:42:27.399 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:42:27.400 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:42:27.412 WARN  f6ff744d-b27c-4ac8-868e-27248a2a02d6 TRANSFER_TO_COUNTERPARTY: ответ банка потерян — перевод повторно не отправляем, уточняем статус
+23:42:27.431 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:42:28.555 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 CHECK_TRANSFER_STATUS: перевод прошёл, платёж проведён за 1177 мс от приёма
+23:42:28.565 INFO  f6ff744d-b27c-4ac8-868e-27248a2a02d6 NOTIFY_CLIENT: client-06 — «платёж проведён»
+23:42:28.980 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 платёж принят, процесс запущен сообщением payment-initiated
+23:42:28.982 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 CREATE_PAYMENT: платёж создан, 2700 RUB, клиент client-07 → продавец seller-07
+23:42:28.993 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:42:29.002 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 CHECK_FRAUD: антифрод ответил DENY за 1 мс
+23:42:29.002 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:42:29.016 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 CHECK_EXTERNAL: задача уже закрыта процессом, ответ не нужен
+23:42:29.018 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 1 с (осталось попыток: 9)
+23:42:30.124 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 2 с (осталось попыток: 8)
+23:42:32.521 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 7)
+23:42:36.926 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 6)
+23:42:41.349 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 5)
+23:42:45.393 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 4)
+23:42:49.937 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 3)
+23:42:54.539 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 2)
+23:42:58.957 WARN  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, повтор через 4 с (осталось попыток: 1)
+23:43:03.450 ERROR 34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: банк не отвечает на разморозку, попытки кончились — инцидент в Operate, нужен дежурный SRE
+23:43:28.392 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:43:28.396 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 REJECT_PAYMENT: платёж отклонён, причина FRAUD
+23:43:28.400 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 NOTIFY_CLIENT: client-07 — «платёж отклонён, деньги разморожены»
+23:43:28.406 INFO  34bf0abe-c8cb-4346-bb08-a075d3321350 NOTIFY_SECURITY: служба безопасности — «платёж отклонён, причина FRAUD»
+23:43:28.536 INFO  009f1102-2e5a-4c53-9f28-aca04940845f платёж принят, процесс запущен сообщением payment-initiated
+23:43:28.537 INFO  009f1102-2e5a-4c53-9f28-aca04940845f CREATE_PAYMENT: платёж создан, 900 RUB, клиент client-08 → продавец seller-08
+23:43:28.542 INFO  009f1102-2e5a-4c53-9f28-aca04940845f HOLD_FUNDS: деньги заморожены на счёте клиента
+23:43:28.548 INFO  009f1102-2e5a-4c53-9f28-aca04940845f CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:43:28.548 INFO  009f1102-2e5a-4c53-9f28-aca04940845f CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:43:28.560 INFO  009f1102-2e5a-4c53-9f28-aca04940845f TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 28 мс от приёма
+23:43:28.568 INFO  009f1102-2e5a-4c53-9f28-aca04940845f NOTIFY_CLIENT: client-08 — «платёж проведён»
+23:43:28.612 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 платёж принят, процесс запущен сообщением payment-initiated
+23:43:28.614 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 CREATE_PAYMENT: платёж создан, 950 RUB, клиент client-08 → продавец seller-08
+23:43:28.620 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:43:28.629 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:43:31.531 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 CHECK_EXTERNAL: внешние проверки ALLOW (AML-провайдер молчал, AML ALLOW из кеша, лимиты и GeoRisk ALLOW)
+23:43:31.549 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 2941 мс от приёма
+23:43:31.558 INFO  9be60a85-7827-4d18-8b7a-5078446c8091 NOTIFY_CLIENT: client-08 — «платёж проведён»
+23:43:31.890 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 платёж принят, процесс запущен сообщением payment-initiated
+23:43:31.891 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 CREATE_PAYMENT: платёж создан, 990 RUB, клиент client-08 → продавец seller-08
+23:43:31.897 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:43:31.905 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:43:34.804 WARN  0fab9700-58dc-45c1-99e5-49b4a1f03425 CHECK_EXTERNAL: нет ответа за 3 с (лимиты и GeoRisk молчали; AML-провайдер молчал, AML ALLOW из кеша) → cut-off, разрешено без ответа проверки
+23:43:34.821 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 RECHECK_DECISIONS: запретов нет (антифрод ALLOW, внешние без решения) → проводим
+23:43:34.834 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу (по cut-off), платёж проведён за 2948 мс от приёма
+23:43:34.839 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 NOTIFY_CLIENT: client-08 — «платёж проведён»
+23:43:34.845 INFO  0fab9700-58dc-45c1-99e5-49b4a1f03425 NOTIFY_SECURITY: служба безопасности — «платёж проведён без ответа проверки (молчали: внешние проверки)»
+23:43:35.155 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e платёж принят, процесс запущен сообщением payment-initiated
+23:43:35.156 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e CREATE_PAYMENT: платёж создан, 970 RUB, клиент client-08d → продавец seller-08d
+23:43:35.163 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e HOLD_FUNDS: деньги заморожены на счёте клиента
+23:43:35.170 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:43:37.970 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e CHECK_EXTERNAL: внешние проверки DENY (AML DENY, лимиты и GeoRisk нет ответа)
+23:43:37.988 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:43:37.996 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e REJECT_PAYMENT: платёж отклонён, причина EXTERNAL
+23:43:38.002 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e NOTIFY_CLIENT: client-08d — «платёж отклонён, деньги разморожены»
+23:43:38.007 INFO  17f1af64-f407-43ab-a531-6f78a1e9b14e NOTIFY_SECURITY: служба безопасности — «платёж отклонён, причина EXTERNAL»
+23:43:38.524 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 платёж принят, процесс запущен сообщением payment-initiated
+23:43:38.525 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 CREATE_PAYMENT: платёж создан, 700 RUB, клиент client-09 → продавец seller-09
+23:43:38.530 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:43:38.536 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:43:38.539 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:43:38.548 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 28 мс от приёма
+23:43:38.553 INFO  90b10d4e-f64b-4c39-a378-80865f29cc46 NOTIFY_CLIENT: client-09 — «платёж проведён»
+23:43:41.839 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f платёж принят, процесс запущен сообщением payment-initiated
+23:43:41.839 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f повторный запрос: сообщение о старте уже принято Zeebe, второй экземпляр не создаётся
+23:43:41.840 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f повторный запрос: сообщение о старте уже принято Zeebe, второй экземпляр не создаётся
+23:43:41.843 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f CREATE_PAYMENT: платёж создан, 1800 RUB, клиент client-10 → продавец seller-10
+23:43:41.844 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f повторный запрос: сообщение о старте уже принято Zeebe, второй экземпляр не создаётся
+23:43:41.844 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f повторный запрос: сообщение о старте уже принято Zeebe, второй экземпляр не создаётся
+23:43:41.852 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f HOLD_FUNDS: деньги заморожены на счёте клиента
+23:43:41.860 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:43:41.862 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:43:41.872 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 41 мс от приёма
+23:43:41.879 INFO  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f NOTIFY_CLIENT: client-10 — «платёж проведён»
+23:43:52.364 WARN  0b168ffd-a62d-4f18-a3d3-e4516bd8f67f ключ 2c6fe08b-71ec-48df-abc6-aadec5f9862a уже использован для другого платежа, запрос отклонён
+23:44:02.657 WARN  b6f099f4-1379-4982-b329-4f2776e60656 Zeebe не принял сообщение о старте (Unavailable), запрос можно повторить с тем же ключом
+23:44:05.005 INFO  b6f099f4-1379-4982-b329-4f2776e60656 платёж принят, процесс запущен сообщением payment-initiated
+23:44:05.008 INFO  b6f099f4-1379-4982-b329-4f2776e60656 CREATE_PAYMENT: платёж создан, 1300 RUB, клиент client-12 → продавец seller-12
+23:44:05.030 INFO  b6f099f4-1379-4982-b329-4f2776e60656 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:44:05.042 INFO  b6f099f4-1379-4982-b329-4f2776e60656 CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:44:05.042 INFO  b6f099f4-1379-4982-b329-4f2776e60656 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:44:05.089 INFO  b6f099f4-1379-4982-b329-4f2776e60656 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 169 мс от приёма
+23:44:05.096 INFO  b6f099f4-1379-4982-b329-4f2776e60656 NOTIFY_CLIENT: client-12 — «платёж проведён»
+23:44:05.616 WARN  139b24fe-cf9d-48ec-9bae-bebb974590d8 Zeebe принял сообщение о старте, но ответ до сервиса не дошёл (заглушка): маркетплейс получит 503
+23:44:05.616 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 CREATE_PAYMENT: платёж создан, 1350 RUB, клиент client-12a → продавец seller-12a
+23:44:05.625 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:44:05.635 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:44:05.635 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:44:05.641 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 повторный запрос с тем же ключом, процесс 2251799813686969 уже запущен
+23:44:05.652 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 42 мс от приёма
+23:44:05.660 INFO  139b24fe-cf9d-48ec-9bae-bebb974590d8 NOTIFY_CLIENT: client-12a — «платёж проведён»
+23:44:17.197 INFO  2c3c6763-7829-4239-9684-9919e8abaa97 платёж принят, процесс запущен сообщением payment-initiated
+23:44:17.199 INFO  2c3c6763-7829-4239-9684-9919e8abaa97 CREATE_PAYMENT: платёж создан, 1400 RUB, клиент client-13 → продавец seller-13
+23:44:17.205 WARN  2c3c6763-7829-4239-9684-9919e8abaa97 HOLD_FUNDS: ответ банка потерян → заморозка отменена по тому же ключу → отказ
+23:44:17.220 INFO  2c3c6763-7829-4239-9684-9919e8abaa97 REJECT_PAYMENT: платёж отклонён, причина HOLD_NOT_CONFIRMED
+23:44:17.225 INFO  2c3c6763-7829-4239-9684-9919e8abaa97 NOTIFY_CLIENT: client-13 — «платёж отклонён, деньги разморожены»
+23:44:18.206 WARN  2c3c6763-7829-4239-9684-9919e8abaa97 банк: заморозка по ключу 2c3c6763-7829-4239-9684-9919e8abaa97:HOLD_FUNDS пришла после отмены — ключ отменён, заморозка отклонена
+23:44:19.377 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 платёж принят, процесс запущен сообщением payment-initiated
+23:44:19.381 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 CREATE_PAYMENT: платёж создан, 2100 RUB, клиент client-14 → продавец seller-14
+23:44:19.389 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:44:19.399 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:44:19.402 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 CHECK_FRAUD: антифрод ответил ALLOW за 3 мс
+23:44:19.412 WARN  b45c11e0-eb5e-4321-a06e-30c010ef2576 TRANSFER_TO_COUNTERPARTY: ответ банка потерян — перевод повторно не отправляем, уточняем статус
+23:44:19.424 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:44:20.677 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:44:21.784 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:44:21.802 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: перевод уходил в банк, его итог ещё не известен — разморозка ждёт, спросим снова через 5 с
+23:44:27.233 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: перевод уходил в банк, его итог ещё не известен — разморозка ждёт, спросим снова через 5 с
+23:44:32.905 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: перевод уходил в банк, его итог ещё не известен — разморозка ждёт, спросим снова через 5 с
+23:44:38.451 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: перевод уходил в банк, его итог ещё не известен — разморозка ждёт, спросим снова через 5 с
+23:44:43.534 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: перевод уходил в банк, его итог ещё не известен — разморозка ждёт, спросим снова через 5 с
+23:44:48.754 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: перевод уходил в банк, его итог ещё не известен — разморозка ждёт, спросим снова через 5 с
+23:44:54.159 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:44:54.174 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 REJECT_PAYMENT: платёж отклонён, причина TRANSFER_DECLINED
+23:44:54.182 INFO  b45c11e0-eb5e-4321-a06e-30c010ef2576 NOTIFY_CLIENT: client-14 — «платёж отклонён, деньги разморожены»
+23:44:54.669 INFO  cf81ca5e-8bb7-4a6d-8740-73f9be1dfb58 платёж принят, процесс запущен сообщением payment-initiated
+23:44:54.671 INFO  cf81ca5e-8bb7-4a6d-8740-73f9be1dfb58 CREATE_PAYMENT: платёж создан, 99000 RUB, клиент client-15 → продавец seller-15
+23:44:54.677 INFO  cf81ca5e-8bb7-4a6d-8740-73f9be1dfb58 HOLD_FUNDS: банк отказал в заморозке — не хватает денег
+23:44:54.686 INFO  cf81ca5e-8bb7-4a6d-8740-73f9be1dfb58 REJECT_PAYMENT: платёж отклонён, причина INSUFFICIENT_FUNDS
+23:44:54.691 INFO  cf81ca5e-8bb7-4a6d-8740-73f9be1dfb58 NOTIFY_CLIENT: client-15 — «платёж отклонён, деньги разморожены»
+23:44:54.740 INFO  2ea58de2-015a-472c-b17d-970921b07557 платёж принят, процесс запущен сообщением payment-initiated
+23:44:54.742 INFO  2ea58de2-015a-472c-b17d-970921b07557 CREATE_PAYMENT: платёж создан, 2600 RUB, клиент client-16 → продавец seller-16
+23:44:54.747 INFO  2ea58de2-015a-472c-b17d-970921b07557 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:44:54.755 INFO  2ea58de2-015a-472c-b17d-970921b07557 CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:44:54.755 INFO  2ea58de2-015a-472c-b17d-970921b07557 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:44:54.766 INFO  2ea58de2-015a-472c-b17d-970921b07557 TRANSFER_TO_COUNTERPARTY: банк отклонил перевод, деньги остаются замороженными
+23:44:54.776 INFO  2ea58de2-015a-472c-b17d-970921b07557 RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:44:54.782 INFO  2ea58de2-015a-472c-b17d-970921b07557 REJECT_PAYMENT: платёж отклонён, причина TRANSFER_DECLINED
+23:44:54.786 INFO  2ea58de2-015a-472c-b17d-970921b07557 NOTIFY_CLIENT: client-16 — «платёж отклонён, деньги разморожены»
+23:44:55.352 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e платёж принят, процесс запущен сообщением payment-initiated
+23:44:55.354 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CREATE_PAYMENT: платёж создан, 2700 RUB, клиент client-17 → продавец seller-17
+23:44:55.362 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e HOLD_FUNDS: деньги заморожены на счёте клиента
+23:44:55.369 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:44:55.369 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:44:55.381 WARN  883293a1-8ef7-450a-b717-1649ffa1ed0e TRANSFER_TO_COUNTERPARTY: ответ банка потерян — перевод повторно не отправляем, уточняем статус
+23:44:55.391 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:44:56.491 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:44:57.569 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:44:59.023 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_TRANSFER_STATUS: банк ещё не нашёл перевод, срок исполнения не истёк, спросим снова через 1 с
+23:45:00.519 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e CHECK_TRANSFER_STATUS: срок исполнения истёк, банк перевод не нашёл — не выполнен, деньги остаются замороженными
+23:45:00.525 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:45:00.528 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e REJECT_PAYMENT: платёж отклонён, причина TRANSFER_DECLINED
+23:45:00.534 INFO  883293a1-8ef7-450a-b717-1649ffa1ed0e NOTIFY_CLIENT: client-17 — «платёж отклонён, деньги разморожены»
+23:45:00.711 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 платёж принят, процесс запущен сообщением payment-initiated
+23:45:00.712 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 CREATE_PAYMENT: платёж создан, 41000 RUB, клиент client-18 → продавец seller-18
+23:45:00.718 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:00.724 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 CHECK_FRAUD: антифрод ответил MANUAL за 1 мс
+23:45:02.727 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 CHECK_EXTERNAL: внешние проверки DENY (AML ALLOW, лимиты и GeoRisk DENY)
+23:45:02.752 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:45:02.759 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 REJECT_PAYMENT: платёж отклонён, причина EXTERNAL
+23:45:02.765 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 NOTIFY_CLIENT: client-18 — «платёж отклонён, деньги разморожены»
+23:45:02.771 INFO  0e1a5116-cf80-4eba-a24e-45466cd403d2 NOTIFY_SECURITY: служба безопасности — «платёж отклонён, причина EXTERNAL»
+23:45:06.079 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb платёж принят, процесс запущен сообщением payment-initiated
+23:45:06.081 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb CREATE_PAYMENT: платёж создан, 1900 RUB, клиент client-19 → продавец seller-19
+23:45:06.087 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:06.093 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:09.093 WARN  7d8d7353-5cf0-4a20-8341-eae5cb3141bb CHECK_FRAUD: антифрод не ответил за 3 с → cut-off, разрешено без ответа проверки
+23:45:09.110 WARN  7d8d7353-5cf0-4a20-8341-eae5cb3141bb RECHECK_DECISIONS: после cut-off пришёл запрет (антифрод) → отказ до перевода
+23:45:09.124 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb RELEASE_FUNDS: деньги разморожены, клиент снова может ими пользоваться
+23:45:09.130 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb REJECT_PAYMENT: платёж отклонён, причина FRAUD
+23:45:09.134 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb NOTIFY_CLIENT: client-19 — «платёж отклонён, деньги разморожены»
+23:45:09.139 INFO  7d8d7353-5cf0-4a20-8341-eae5cb3141bb NOTIFY_SECURITY: служба безопасности — «платёж отклонён, причина FRAUD»
+23:45:09.316 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 платёж принят, процесс запущен сообщением payment-initiated
+23:45:09.317 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 CREATE_PAYMENT: платёж создан, 800 RUB, клиент client-20 → продавец seller-20
+23:45:09.322 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:09.328 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:45:09.330 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:09.340 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 27 мс от приёма
+23:45:09.348 WARN  62633327-dae9-4baf-9c31-d8ba908ae167 NOTIFY_CLIENT: Notification Service ответил 503, повтор через 1 с (осталось попыток: 2)
+23:45:09.552 INFO  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 платёж принят, процесс запущен сообщением payment-initiated
+23:45:09.553 INFO  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CREATE_PAYMENT: платёж создан, 1100 RUB, клиент client-21 → продавец seller-21
+23:45:09.567 INFO  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:09.575 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:09.776 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:09.985 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:10.193 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:10.394 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:10.596 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:10.671 WARN  62633327-dae9-4baf-9c31-d8ba908ae167 NOTIFY_CLIENT: Notification Service ответил 503, повтор через 2 с (осталось попыток: 1)
+23:45:10.799 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:11.006 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:11.209 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:11.413 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:11.615 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:11.818 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:12.030 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:12.233 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:12.435 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:12.573 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_FRAUD: антифрод не ответил за 3 с → cut-off, разрешено без ответа проверки
+23:45:12.574 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 CHECK_EXTERNAL: нет ответа за 3 с (лимиты и GeoRisk молчали; AML-провайдер молчал, в кеше AML нет) → cut-off, разрешено без ответа проверки
+23:45:12.583 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 RECHECK_DECISIONS: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:12.788 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 RECHECK_DECISIONS: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:12.900 INFO  62633327-dae9-4baf-9c31-d8ba908ae167 NOTIFY_CLIENT: client-20 — «платёж проведён»
+23:45:12.995 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 RECHECK_DECISIONS: сбой вызова FraudCheck (Name or service not known (fraud-check-service:8080)), повтор в пределах срока
+23:45:13.083 WARN  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 RECHECK_DECISIONS: FraudCheck не ответил за 500 мс → проводим по cut-off
+23:45:13.096 INFO  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу (по cut-off), платёж проведён за 3548 мс от приёма
+23:45:13.102 INFO  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 NOTIFY_CLIENT: client-21 — «платёж проведён»
+23:45:13.108 INFO  09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 NOTIFY_SECURITY: служба безопасности — «платёж проведён без ответа проверки (молчали: антифрод, внешние проверки)»
+23:45:15.601 INFO  dc45c167-888a-4490-bad4-109f4e076c43 платёж принят, процесс запущен сообщением payment-initiated
+23:45:15.602 INFO  dc45c167-888a-4490-bad4-109f4e076c43 CREATE_PAYMENT: платёж создан, 1500 RUB, клиент client-r1 → продавец seller-r1
+23:45:15.607 INFO  dc45c167-888a-4490-bad4-109f4e076c43 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:15.623 INFO  dc45c167-888a-4490-bad4-109f4e076c43 CHECK_FRAUD: антифрод ответил ALLOW за 11 мс
+23:45:15.628 INFO  dc45c167-888a-4490-bad4-109f4e076c43 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:15.636 INFO  dc45c167-888a-4490-bad4-109f4e076c43 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 39 мс от приёма
+23:45:15.639 INFO  dc45c167-888a-4490-bad4-109f4e076c43 NOTIFY_CLIENT: client-r1 — «платёж проведён»
+23:45:16.186 INFO  dc45c167-888a-4490-bad4-109f4e076c43 мошенничество обнаружено после перевода, отправлено сообщение fraud-detected-after-transfer
+23:45:16.191 INFO  dc45c167-888a-4490-bad4-109f4e076c43 CREATE_REFUND: мошенничество обнаружено после перевода, возврат зарегистрирован
+23:45:16.203 INFO  dc45c167-888a-4490-bad4-109f4e076c43 REFUND_TO_CLIENT: деньги возвращены клиенту (попытка 1)
+23:45:16.207 INFO  dc45c167-888a-4490-bad4-109f4e076c43 NOTIFY_CLIENT: client-r1 — «деньги по платежу возвращены»
+23:45:16.211 INFO  dc45c167-888a-4490-bad4-109f4e076c43 RECOVER_FROM_COUNTERPARTY: с продавца удержано 1500.00
+23:45:16.216 INFO  dc45c167-888a-4490-bad4-109f4e076c43 NOTIFY_SECURITY: служба безопасности — «возврат постфактум выполнен: с продавца удержано 1500.00, долг продавца 0.00»
+23:45:22.074 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 платёж принят, процесс запущен сообщением payment-initiated
+23:45:22.076 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 CREATE_PAYMENT: платёж создан, 1600 RUB, клиент client-r2 → продавец seller-r2
+23:45:22.082 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:22.091 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:45:22.092 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:22.104 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 37 мс от приёма
+23:45:22.109 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 NOTIFY_CLIENT: client-r2 — «платёж проведён»
+23:45:22.130 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 мошенничество обнаружено после перевода, отправлено сообщение fraud-detected-after-transfer
+23:45:22.131 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 CREATE_REFUND: мошенничество обнаружено после перевода, возврат зарегистрирован
+23:45:22.138 WARN  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 REFUND_TO_CLIENT: ответ банка потерян — возврат повторно не отправляем, уточняем статус
+23:45:22.149 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:23.324 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 CHECK_REFUND_STATUS: возврат прошёл
+23:45:23.337 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 NOTIFY_CLIENT: client-r2 — «деньги по платежу возвращены»
+23:45:23.339 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 RECOVER_FROM_COUNTERPARTY: с продавца удержано 1600.00
+23:45:23.347 INFO  b1d2a73f-e1c5-486a-95e5-e53d9fd71446 NOTIFY_SECURITY: служба безопасности — «возврат постфактум выполнен: с продавца удержано 1600.00, долг продавца 0.00»
+23:45:27.038 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 платёж принят, процесс запущен сообщением payment-initiated
+23:45:27.041 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 CREATE_PAYMENT: платёж создан, 1700 RUB, клиент client-r3 → продавец seller-r3
+23:45:27.048 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:27.057 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:45:27.057 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:27.067 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 39 мс от приёма
+23:45:27.074 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 NOTIFY_CLIENT: client-r3 — «платёж проведён»
+23:45:27.097 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 мошенничество обнаружено после перевода, отправлено сообщение fraud-detected-after-transfer
+23:45:27.099 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 CREATE_REFUND: мошенничество обнаружено после перевода, возврат зарегистрирован
+23:45:27.108 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 REFUND_TO_CLIENT: банк отклонил возврат (попытка 1) — нужны новые реквизиты клиента
+23:45:27.113 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 NOTIFY_CLIENT: client-r3 — «банк не принял возврат, укажите новые реквизиты»
+23:45:32.477 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 повторный сигнал о мошенничестве: возврат уже идёт (REFUND_DETAILS_REQUESTED), второй не запускается
+23:45:37.448 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 клиент указал новые реквизиты, попытка возврата 2
+23:45:37.452 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 REFUND_TO_CLIENT: деньги возвращены клиенту (попытка 2)
+23:45:37.458 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 NOTIFY_CLIENT: client-r3 — «деньги по платежу возвращены»
+23:45:37.459 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 RECOVER_FROM_COUNTERPARTY: с продавца удержано 1700.00
+23:45:37.463 INFO  c9023131-bb33-4856-aee4-eda083d4cc35 NOTIFY_SECURITY: служба безопасности — «возврат постфактум выполнен: с продавца удержано 1700.00, долг продавца 0.00»
+23:45:37.524 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc платёж принят, процесс запущен сообщением payment-initiated
+23:45:37.525 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc CREATE_PAYMENT: платёж создан, 1550 RUB, клиент client-r6 → продавец seller-r6
+23:45:37.529 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:37.535 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc CHECK_FRAUD: антифрод ответил ALLOW за 0 мс
+23:45:37.535 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:37.544 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 24 мс от приёма
+23:45:37.548 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc NOTIFY_CLIENT: client-r6 — «платёж проведён»
+23:45:37.574 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc мошенничество обнаружено после перевода, отправлено сообщение fraud-detected-after-transfer
+23:45:37.575 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc CREATE_REFUND: мошенничество обнаружено после перевода, возврат зарегистрирован
+23:45:37.580 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc повторный сигнал о мошенничестве: сообщение уже принято Zeebe, второй возврат не запускается
+23:45:37.580 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc повторный сигнал о мошенничестве: сообщение уже принято Zeebe, второй возврат не запускается
+23:45:37.585 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc REFUND_TO_CLIENT: деньги возвращены клиенту (попытка 1)
+23:45:37.589 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc NOTIFY_CLIENT: client-r6 — «деньги по платежу возвращены»
+23:45:37.591 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc RECOVER_FROM_COUNTERPARTY: с продавца удержано 1550.00
+23:45:37.594 INFO  3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc NOTIFY_SECURITY: служба безопасности — «возврат постфактум выполнен: с продавца удержано 1550.00, долг продавца 0.00»
+23:45:47.111 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d платёж принят, процесс запущен сообщением payment-initiated
+23:45:47.112 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d CREATE_PAYMENT: платёж создан, 1500 RUB, клиент client-r4 → продавец seller-r4
+23:45:47.117 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:47.124 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:45:47.124 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:47.133 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 26 мс от приёма
+23:45:47.137 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d NOTIFY_CLIENT: client-r4 — «платёж проведён»
+23:45:47.157 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d мошенничество обнаружено после перевода, отправлено сообщение fraud-detected-after-transfer
+23:45:47.161 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d CREATE_REFUND: мошенничество обнаружено после перевода, возврат зарегистрирован
+23:45:47.166 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d REFUND_TO_CLIENT: деньги возвращены клиенту (попытка 1)
+23:45:47.170 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d NOTIFY_CLIENT: client-r4 — «деньги по платежу возвращены»
+23:45:47.170 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d RECOVER_FROM_COUNTERPARTY: с продавца удержано 500, на балансе не хватило — 1000.00 записано в долг продавца
+23:45:47.174 INFO  a0878da5-f850-4409-b4f1-e90ae5218c1d NOTIFY_SECURITY: служба безопасности — «возврат постфактум выполнен: с продавца удержано 500.00, долг продавца 1000.00»
+23:45:51.990 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 платёж принят, процесс запущен сообщением payment-initiated
+23:45:51.993 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CREATE_PAYMENT: платёж создан, 1650 RUB, клиент client-r7 → продавец seller-r7
+23:45:52.002 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 HOLD_FUNDS: деньги заморожены на счёте клиента
+23:45:52.009 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_FRAUD: антифрод ответил ALLOW за 1 мс
+23:45:52.010 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_EXTERNAL: внешние проверки ALLOW (AML ALLOW, лимиты и GeoRisk ALLOW)
+23:45:52.021 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 TRANSFER_TO_COUNTERPARTY: деньги списаны и переведены продавцу, платёж проведён за 38 мс от приёма
+23:45:52.027 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 NOTIFY_CLIENT: client-r7 — «платёж проведён»
+23:45:52.047 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 мошенничество обнаружено после перевода, отправлено сообщение fraud-detected-after-transfer
+23:45:52.049 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CREATE_REFUND: мошенничество обнаружено после перевода, возврат зарегистрирован
+23:45:52.054 WARN  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 REFUND_TO_CLIENT: ответ банка потерян — возврат повторно не отправляем, уточняем статус
+23:45:52.061 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:53.354 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:54.769 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:56.041 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:57.071 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: возврат точно не выполнен, отправим снова с тем же ключом
+23:45:57.083 WARN  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 REFUND_TO_CLIENT: ответ банка потерян — возврат повторно не отправляем, уточняем статус
+23:45:57.092 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:58.390 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:45:59.745 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:46:00.942 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:46:02.528 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: возврат точно не выполнен, отправим снова с тем же ключом
+23:46:02.540 WARN  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 REFUND_TO_CLIENT: ответ банка потерян — возврат повторно не отправляем, уточняем статус
+23:46:02.553 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:46:03.758 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:46:05.183 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:46:06.449 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк ещё не нашёл возврат, срок исполнения не истёк, спросим снова через 1 с
+23:46:07.752 ERROR 41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: банк не исполнил возврат, отправок подряд: 3; после устранения причины шаг нужно повторить — инцидент в Operate
+23:46:29.566 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 CHECK_REFUND_STATUS: возврат точно не выполнен, отправим снова с тем же ключом
+23:46:29.572 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 REFUND_TO_CLIENT: деньги возвращены клиенту (попытка 1)
+23:46:29.578 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 RECOVER_FROM_COUNTERPARTY: с продавца удержано 1650.00
+23:46:29.578 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 NOTIFY_CLIENT: client-r7 — «деньги по платежу возвращены»
+23:46:29.583 INFO  41d63e1c-dd46-4480-8c8d-43a10eea7aa1 NOTIFY_SECURITY: служба безопасности — «возврат постфактум выполнен: с продавца удержано 1650.00, долг продавца 0.00»

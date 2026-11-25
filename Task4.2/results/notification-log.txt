@@ -1,0 +1,56 @@
+23:41:45.807 info: NotificationService[0] 482fb62f-c86d-41ea-ba8d-d24536eb7934 client-01: платёж проведён
+23:41:46.246 info: NotificationService[0] 024b0cc3-a48b-483d-834f-345d0821f150 client-02: платёж отклонён, деньги разморожены
+23:41:46.257 info: NotificationService[0] 024b0cc3-a48b-483d-834f-345d0821f150 служба безопасности: платёж отклонён, причина FRAUD
+23:42:08.337 info: NotificationService[0] a60cd2b1-5dca-4935-9640-153cbed00230 client-03: платёж проведён
+23:42:12.364 info: NotificationService[0] d90a4f66-a7d8-4894-aa49-39d2562c480b client-04: платёж отклонён, деньги разморожены
+23:42:12.369 info: NotificationService[0] d90a4f66-a7d8-4894-aa49-39d2562c480b служба безопасности: платёж отклонён, причина MANUAL_REVIEW
+23:42:16.541 info: NotificationService[0] b016272c-8306-49d0-bd2d-ebd5e51417b6 client-05: платёж проведён
+23:42:16.549 info: NotificationService[0] b016272c-8306-49d0-bd2d-ebd5e51417b6 служба безопасности: платёж проведён без ответа проверки (молчали: антифрод)
+23:42:27.201 info: NotificationService[0] 187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 client-55: платёж проведён
+23:42:27.208 info: NotificationService[0] 187a2bd4-1da0-4cfb-a4b0-4028bd8cf941 служба безопасности: платёж проведён без ответа проверки (молчали: оператор)
+23:42:28.565 info: NotificationService[0] f6ff744d-b27c-4ac8-868e-27248a2a02d6 client-06: платёж проведён
+23:43:28.400 info: NotificationService[0] 34bf0abe-c8cb-4346-bb08-a075d3321350 client-07: платёж отклонён, деньги разморожены
+23:43:28.404 info: NotificationService[0] 34bf0abe-c8cb-4346-bb08-a075d3321350 служба безопасности: платёж отклонён, причина FRAUD
+23:43:28.567 info: NotificationService[0] 009f1102-2e5a-4c53-9f28-aca04940845f client-08: платёж проведён
+23:43:31.558 info: NotificationService[0] 9be60a85-7827-4d18-8b7a-5078446c8091 client-08: платёж проведён
+23:43:34.839 info: NotificationService[0] 0fab9700-58dc-45c1-99e5-49b4a1f03425 client-08: платёж проведён
+23:43:34.845 info: NotificationService[0] 0fab9700-58dc-45c1-99e5-49b4a1f03425 служба безопасности: платёж проведён без ответа проверки (молчали: внешние проверки)
+23:43:38.002 info: NotificationService[0] 17f1af64-f407-43ab-a531-6f78a1e9b14e client-08d: платёж отклонён, деньги разморожены
+23:43:38.007 info: NotificationService[0] 17f1af64-f407-43ab-a531-6f78a1e9b14e служба безопасности: платёж отклонён, причина EXTERNAL
+23:43:38.552 info: NotificationService[0] 90b10d4e-f64b-4c39-a378-80865f29cc46 client-09: платёж проведён
+23:43:41.877 info: NotificationService[0] 0b168ffd-a62d-4f18-a3d3-e4516bd8f67f client-10: платёж проведён
+23:44:05.096 info: NotificationService[0] b6f099f4-1379-4982-b329-4f2776e60656 client-12: платёж проведён
+23:44:05.659 info: NotificationService[0] 139b24fe-cf9d-48ec-9bae-bebb974590d8 client-12a: платёж проведён
+23:44:17.224 info: NotificationService[0] 2c3c6763-7829-4239-9684-9919e8abaa97 client-13: платёж отклонён, деньги разморожены
+23:44:54.181 info: NotificationService[0] b45c11e0-eb5e-4321-a06e-30c010ef2576 client-14: платёж отклонён, деньги разморожены
+23:44:54.691 info: NotificationService[0] cf81ca5e-8bb7-4a6d-8740-73f9be1dfb58 client-15: платёж отклонён, деньги разморожены
+23:44:54.786 info: NotificationService[0] 2ea58de2-015a-472c-b17d-970921b07557 client-16: платёж отклонён, деньги разморожены
+23:45:00.533 info: NotificationService[0] 883293a1-8ef7-450a-b717-1649ffa1ed0e client-17: платёж отклонён, деньги разморожены
+23:45:02.764 info: NotificationService[0] 0e1a5116-cf80-4eba-a24e-45466cd403d2 client-18: платёж отклонён, деньги разморожены
+23:45:02.771 info: NotificationService[0] 0e1a5116-cf80-4eba-a24e-45466cd403d2 служба безопасности: платёж отклонён, причина EXTERNAL
+23:45:09.134 info: NotificationService[0] 7d8d7353-5cf0-4a20-8341-eae5cb3141bb client-19: платёж отклонён, деньги разморожены
+23:45:09.139 info: NotificationService[0] 7d8d7353-5cf0-4a20-8341-eae5cb3141bb служба безопасности: платёж отклонён, причина FRAUD
+23:45:09.345 warn: NotificationService[0] 62633327-dae9-4baf-9c31-d8ba908ae167 уведомление 62633327-dae9-4baf-9c31-d8ba908ae167:NOTIFY_CLIENT:PAYMENT_COMPLETED не принято (заглушка отвечает 503)
+23:45:10.668 warn: NotificationService[0] 62633327-dae9-4baf-9c31-d8ba908ae167 уведомление 62633327-dae9-4baf-9c31-d8ba908ae167:NOTIFY_CLIENT:PAYMENT_COMPLETED не принято (заглушка отвечает 503)
+23:45:12.900 info: NotificationService[0] 62633327-dae9-4baf-9c31-d8ba908ae167 client-20: платёж проведён
+23:45:13.102 info: NotificationService[0] 09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 client-21: платёж проведён
+23:45:13.107 info: NotificationService[0] 09fc25d6-a8c9-40eb-9c67-aef7b9bdc286 служба безопасности: платёж проведён без ответа проверки (молчали: антифрод, внешние проверки)
+23:45:15.639 info: NotificationService[0] dc45c167-888a-4490-bad4-109f4e076c43 client-r1: платёж проведён
+23:45:16.207 info: NotificationService[0] dc45c167-888a-4490-bad4-109f4e076c43 client-r1: деньги по платежу возвращены
+23:45:16.215 info: NotificationService[0] dc45c167-888a-4490-bad4-109f4e076c43 служба безопасности: возврат постфактум выполнен: с продавца удержано 1500.00, долг продавца 0.00
+23:45:22.108 info: NotificationService[0] b1d2a73f-e1c5-486a-95e5-e53d9fd71446 client-r2: платёж проведён
+23:45:23.337 info: NotificationService[0] b1d2a73f-e1c5-486a-95e5-e53d9fd71446 client-r2: деньги по платежу возвращены
+23:45:23.346 info: NotificationService[0] b1d2a73f-e1c5-486a-95e5-e53d9fd71446 служба безопасности: возврат постфактум выполнен: с продавца удержано 1600.00, долг продавца 0.00
+23:45:27.073 info: NotificationService[0] c9023131-bb33-4856-aee4-eda083d4cc35 client-r3: платёж проведён
+23:45:27.113 info: NotificationService[0] c9023131-bb33-4856-aee4-eda083d4cc35 client-r3: банк не принял возврат, укажите новые реквизиты
+23:45:37.458 info: NotificationService[0] c9023131-bb33-4856-aee4-eda083d4cc35 client-r3: деньги по платежу возвращены
+23:45:37.463 info: NotificationService[0] c9023131-bb33-4856-aee4-eda083d4cc35 служба безопасности: возврат постфактум выполнен: с продавца удержано 1700.00, долг продавца 0.00
+23:45:37.548 info: NotificationService[0] 3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc client-r6: платёж проведён
+23:45:37.588 info: NotificationService[0] 3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc client-r6: деньги по платежу возвращены
+23:45:37.594 info: NotificationService[0] 3c3b1f3d-2ae7-41b4-8fd0-452fcf3a5bcc служба безопасности: возврат постфактум выполнен: с продавца удержано 1550.00, долг продавца 0.00
+23:45:47.136 info: NotificationService[0] a0878da5-f850-4409-b4f1-e90ae5218c1d client-r4: платёж проведён
+23:45:47.170 info: NotificationService[0] a0878da5-f850-4409-b4f1-e90ae5218c1d client-r4: деньги по платежу возвращены
+23:45:47.174 info: NotificationService[0] a0878da5-f850-4409-b4f1-e90ae5218c1d служба безопасности: возврат постфактум выполнен: с продавца удержано 500.00, долг продавца 1000.00
+23:45:52.026 info: NotificationService[0] 41d63e1c-dd46-4480-8c8d-43a10eea7aa1 client-r7: платёж проведён
+23:46:29.578 info: NotificationService[0] 41d63e1c-dd46-4480-8c8d-43a10eea7aa1 client-r7: деньги по платежу возвращены
+23:46:29.583 info: NotificationService[0] 41d63e1c-dd46-4480-8c8d-43a10eea7aa1 служба безопасности: возврат постфактум выполнен: с продавца удержано 1650.00, долг продавца 0.00
