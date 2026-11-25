@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_PostFactumRefund" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.5.0">
+  <bpmn:message id="Message_FraudDetected" name="fraud-detected-after-transfer" />
+  <bpmn:message id="Message_DetailsProvided" name="refund-details-provided">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=paymentId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:error id="Error_RefundDeclined" name="Банк отклонил возврат" errorCode="REFUND_DECLINED" />
+  <bpmn:error id="Error_RefundStatusUnknown" name="Ответ о возврате потерян" errorCode="REFUND_STATUS_UNKNOWN" />
+  <bpmn:process id="post-factum-refund" name="Возврат постфактум" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_FraudDetected" name="Мошенничество обнаружено после перевода">
+      <bpmn:outgoing>Flow_Start_Create</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="StartEvent_FraudDetected_Def" messageRef="Message_FraudDetected" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_CreateRefund" name="Зарегистрировать возврат">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CREATE_REFUND" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start_Create</bpmn:incoming>
+      <bpmn:outgoing>Flow_Create_Retry</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_RefundRetry" name="Вернуть снова">
+      <bpmn:incoming>Flow_Create_Retry</bpmn:incoming>
+      <bpmn:incoming>Flow_Details_Retry</bpmn:incoming>
+      <bpmn:incoming>Flow_RefundDone_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_Retry_Refund</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_RefundToClient" name="Вернуть деньги клиенту">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="REFUND_TO_CLIENT" retries="1" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Retry_Refund</bpmn:incoming>
+      <bpmn:outgoing>Flow_Refund_Merge</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Boundary_RefundDeclined" name="Банк отклонил возврат" attachedToRef="Task_RefundToClient">
+      <bpmn:outgoing>Flow_Declined_Request</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Boundary_RefundDeclined_Def" errorRef="Error_RefundDeclined" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Boundary_RefundStatusUnknown" name="Ответ потерян" attachedToRef="Task_RefundToClient">
+      <bpmn:outgoing>Flow_Unknown_Status</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Boundary_RefundStatusUnknown_Def" errorRef="Error_RefundStatusUnknown" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_RequestDetails" name="Запросить у клиента новые реквизиты">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_CLIENT" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="REFUND_DETAILS_REQUESTED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Declined_Request</bpmn:incoming>
+      <bpmn:outgoing>Flow_Request_Wait</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="Event_DetailsProvided" name="Клиент указал реквизиты">
+      <bpmn:incoming>Flow_Request_Wait</bpmn:incoming>
+      <bpmn:outgoing>Flow_Details_Retry</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="Event_DetailsProvided_Def" messageRef="Message_DetailsProvided" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="Task_CheckRefundStatus" name="Уточнить статус возврата">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CHECK_REFUND_STATUS" retries="10" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Unknown_Status</bpmn:incoming>
+      <bpmn:outgoing>Flow_Status_Decision</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_RefundDone" name="Возврат прошёл?" default="Flow_RefundDone_No">
+      <bpmn:incoming>Flow_Status_Decision</bpmn:incoming>
+      <bpmn:outgoing>Flow_RefundDone_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RefundDone_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_RefundMerge" name="Деньги возвращены клиенту">
+      <bpmn:incoming>Flow_Refund_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_RefundDone_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Merge_Split</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_Split" name="Удержать и уведомить">
+      <bpmn:incoming>Flow_Merge_Split</bpmn:incoming>
+      <bpmn:outgoing>Flow_Split_Recover</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Split_Notify</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:serviceTask id="Task_RecoverFromCounterparty" name="Удержать сумму с продавца">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="RECOVER_FROM_COUNTERPARTY" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Split_Recover</bpmn:incoming>
+      <bpmn:outgoing>Flow_Recover_Join</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_NotifyClient" name="Уведомить клиента">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_CLIENT" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="REFUND_COMPLETED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Split_Notify</bpmn:incoming>
+      <bpmn:outgoing>Flow_Notify_Join</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="Gateway_Join" name="Удержано и уведомлено">
+      <bpmn:incoming>Flow_Recover_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_Notify_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_Join_Security</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:serviceTask id="Task_NotifySecurity" name="Уведомить безопасность">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_SECURITY" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="REFUND_COMPLETED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Join_Security</bpmn:incoming>
+      <bpmn:outgoing>Flow_Security_End</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_Refunded" name="Деньги возвращены">
+      <bpmn:incoming>Flow_Security_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Start_Create" sourceRef="StartEvent_FraudDetected" targetRef="Task_CreateRefund" />
+    <bpmn:sequenceFlow id="Flow_Create_Retry" sourceRef="Task_CreateRefund" targetRef="Gateway_RefundRetry" />
+    <bpmn:sequenceFlow id="Flow_Retry_Refund" sourceRef="Gateway_RefundRetry" targetRef="Task_RefundToClient" />
+    <bpmn:sequenceFlow id="Flow_Refund_Merge" sourceRef="Task_RefundToClient" targetRef="Gateway_RefundMerge" />
+    <bpmn:sequenceFlow id="Flow_Declined_Request" sourceRef="Boundary_RefundDeclined" targetRef="Task_RequestDetails" />
+    <bpmn:sequenceFlow id="Flow_Request_Wait" sourceRef="Task_RequestDetails" targetRef="Event_DetailsProvided" />
+    <bpmn:sequenceFlow id="Flow_Details_Retry" sourceRef="Event_DetailsProvided" targetRef="Gateway_RefundRetry" />
+    <bpmn:sequenceFlow id="Flow_Unknown_Status" sourceRef="Boundary_RefundStatusUnknown" targetRef="Task_CheckRefundStatus" />
+    <bpmn:sequenceFlow id="Flow_Status_Decision" sourceRef="Task_CheckRefundStatus" targetRef="Gateway_RefundDone" />
+    <bpmn:sequenceFlow id="Flow_RefundDone_Yes" name="да" sourceRef="Gateway_RefundDone" targetRef="Gateway_RefundMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=refundStatus = &quot;DONE&quot;</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_RefundDone_No" name="нет — повторить шаг с тем же ключом" sourceRef="Gateway_RefundDone" targetRef="Gateway_RefundRetry" />
+    <bpmn:sequenceFlow id="Flow_Merge_Split" sourceRef="Gateway_RefundMerge" targetRef="Gateway_Split" />
+    <bpmn:sequenceFlow id="Flow_Split_Recover" sourceRef="Gateway_Split" targetRef="Task_RecoverFromCounterparty" />
+    <bpmn:sequenceFlow id="Flow_Split_Notify" sourceRef="Gateway_Split" targetRef="Task_NotifyClient" />
+    <bpmn:sequenceFlow id="Flow_Recover_Join" sourceRef="Task_RecoverFromCounterparty" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_Notify_Join" sourceRef="Task_NotifyClient" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_Join_Security" sourceRef="Gateway_Join" targetRef="Task_NotifySecurity" />
+    <bpmn:sequenceFlow id="Flow_Security_End" sourceRef="Task_NotifySecurity" targetRef="EndEvent_Refunded" />
+    <bpmn:textAnnotation id="TextAnnotation_PointOfNoReturn">
+      <bpmn:text>Точка невозврата</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:textAnnotation id="TextAnnotation_Debt">
+      <bpmn:text>Не хватает баланса — долг из будущих выплат</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_PointOfNoReturn" sourceRef="TextAnnotation_PointOfNoReturn" targetRef="Task_RefundToClient" />
+    <bpmn:association id="Association_Debt" sourceRef="TextAnnotation_Debt" targetRef="Task_RecoverFromCounterparty" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_PostFactumRefund">
+    <bpmndi:BPMNPlane id="BPMNPlane_PostFactumRefund" bpmnElement="post-factum-refund">
+      <bpmndi:BPMNShape id="StartEvent_FraudDetected_di" bpmnElement="StartEvent_FraudDetected">
+        <dc:Bounds x="92" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="60" y="324" width="100" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CreateRefund_di" bpmnElement="Task_CreateRefund">
+        <dc:Bounds x="175" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RefundRetry_di" bpmnElement="Gateway_RefundRetry" isMarkerVisible="true">
+        <dc:Bounds x="335" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="300" y="330" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RefundToClient_di" bpmnElement="Task_RefundToClient">
+        <dc:Bounds x="420" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_PointOfNoReturn_di" bpmnElement="TextAnnotation_PointOfNoReturn">
+        <dc:Bounds x="385" y="195" width="120" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_RefundDeclined_di" bpmnElement="Boundary_RefundDeclined">
+        <dc:Bounds x="502" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="530" y="222" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_RefundStatusUnknown_di" bpmnElement="Boundary_RefundStatusUnknown">
+        <dc:Bounds x="492" y="322" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="520" y="358" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RequestDetails_di" bpmnElement="Task_RequestDetails">
+        <dc:Bounds x="585" y="135" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_DetailsProvided_di" bpmnElement="Event_DetailsProvided">
+        <dc:Bounds x="772" y="157" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="745" y="199" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckRefundStatus_di" bpmnElement="Task_CheckRefundStatus">
+        <dc:Bounds x="500" y="400" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RefundDone_di" bpmnElement="Gateway_RefundDone" isMarkerVisible="true">
+        <dc:Bounds x="715" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="768" y="460" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RefundMerge_di" bpmnElement="Gateway_RefundMerge" isMarkerVisible="true">
+        <dc:Bounds x="715" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="682" y="250" width="116" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Split_di" bpmnElement="Gateway_Split">
+        <dc:Bounds x="805" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="846" y="252" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RecoverFromCounterparty_di" bpmnElement="Task_RecoverFromCounterparty">
+        <dc:Bounds x="890" y="160" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_Debt_di" bpmnElement="TextAnnotation_Debt">
+        <dc:Bounds x="1030" y="95" width="170" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyClient_di" bpmnElement="Task_NotifyClient">
+        <dc:Bounds x="890" y="360" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Join_di" bpmnElement="Gateway_Join">
+        <dc:Bounds x="1045" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="976" y="252" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifySecurity_di" bpmnElement="Task_NotifySecurity">
+        <dc:Bounds x="1140" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Refunded_di" bpmnElement="EndEvent_Refunded">
+        <dc:Bounds x="1282" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1265" y="324" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_Create_di" bpmnElement="Flow_Start_Create">
+        <di:waypoint x="128" y="300" />
+        <di:waypoint x="175" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Create_Retry_di" bpmnElement="Flow_Create_Retry">
+        <di:waypoint x="295" y="300" />
+        <di:waypoint x="335" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Retry_Refund_di" bpmnElement="Flow_Retry_Refund">
+        <di:waypoint x="385" y="300" />
+        <di:waypoint x="420" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Refund_Merge_di" bpmnElement="Flow_Refund_Merge">
+        <di:waypoint x="540" y="300" />
+        <di:waypoint x="715" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Declined_Request_di" bpmnElement="Flow_Declined_Request">
+        <di:waypoint x="520" y="242" />
+        <di:waypoint x="520" y="175" />
+        <di:waypoint x="585" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Request_Wait_di" bpmnElement="Flow_Request_Wait">
+        <di:waypoint x="715" y="175" />
+        <di:waypoint x="772" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Details_Retry_di" bpmnElement="Flow_Details_Retry">
+        <di:waypoint x="790" y="157" />
+        <di:waypoint x="790" y="105" />
+        <di:waypoint x="360" y="105" />
+        <di:waypoint x="360" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Unknown_Status_di" bpmnElement="Flow_Unknown_Status">
+        <di:waypoint x="510" y="358" />
+        <di:waypoint x="510" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Status_Decision_di" bpmnElement="Flow_Status_Decision">
+        <di:waypoint x="620" y="440" />
+        <di:waypoint x="715" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RefundDone_Yes_di" bpmnElement="Flow_RefundDone_Yes">
+        <di:waypoint x="740" y="415" />
+        <di:waypoint x="740" y="325" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="748" y="362" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RefundDone_No_di" bpmnElement="Flow_RefundDone_No">
+        <di:waypoint x="740" y="465" />
+        <di:waypoint x="740" y="520" />
+        <di:waypoint x="360" y="520" />
+        <di:waypoint x="360" y="325" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="450" y="524" width="200" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Merge_Split_di" bpmnElement="Flow_Merge_Split">
+        <di:waypoint x="765" y="300" />
+        <di:waypoint x="805" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_Recover_di" bpmnElement="Flow_Split_Recover">
+        <di:waypoint x="830" y="275" />
+        <di:waypoint x="830" y="200" />
+        <di:waypoint x="890" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Split_Notify_di" bpmnElement="Flow_Split_Notify">
+        <di:waypoint x="830" y="325" />
+        <di:waypoint x="830" y="400" />
+        <di:waypoint x="890" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Recover_Join_di" bpmnElement="Flow_Recover_Join">
+        <di:waypoint x="1010" y="200" />
+        <di:waypoint x="1070" y="200" />
+        <di:waypoint x="1070" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Notify_Join_di" bpmnElement="Flow_Notify_Join">
+        <di:waypoint x="1010" y="400" />
+        <di:waypoint x="1070" y="400" />
+        <di:waypoint x="1070" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Join_Security_di" bpmnElement="Flow_Join_Security">
+        <di:waypoint x="1095" y="300" />
+        <di:waypoint x="1140" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Security_End_di" bpmnElement="Flow_Security_End">
+        <di:waypoint x="1240" y="300" />
+        <di:waypoint x="1282" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_PointOfNoReturn_di" bpmnElement="Association_PointOfNoReturn">
+        <di:waypoint x="445" y="225" />
+        <di:waypoint x="445" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_Debt_di" bpmnElement="Association_Debt">
+        <di:waypoint x="1030" y="135" />
+        <di:waypoint x="1010" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

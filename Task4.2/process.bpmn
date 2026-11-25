@@ -1,0 +1,966 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_PaymentProcess" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.5.0">
+  <bpmn:error id="Error_FundsHoldDeclined" name="Заморозка не прошла" errorCode="FUNDS_HOLD_DECLINED" />
+  <bpmn:error id="Error_CheckDenied" name="Запрет проверки" errorCode="CHECK_DENIED" />
+  <bpmn:error id="Error_TransferDeclined" name="Перевод отклонён" errorCode="TRANSFER_DECLINED" />
+  <bpmn:error id="Error_TransferStatusUnknown" name="Ответ о переводе потерян" errorCode="TRANSFER_STATUS_UNKNOWN" />
+  <bpmn:message id="Message_PaymentInitiated" name="payment-initiated" />
+  <bpmn:process id="payment-process" name="Обработка платежа" isExecutable="true">
+    <bpmn:extensionElements>
+      <zeebe:userTaskForm id="ManualReviewForm">{&quot;components&quot;:[{&quot;text&quot;:&quot;#### Ручная проверка платежа\nАнтифрод не смог решить автоматически. Проверьте платёж и выберите решение. Если решения не будет в срок, платёж проведут по cut-off, а безопасность получит уведомление.&quot;,&quot;type&quot;:&quot;text&quot;,&quot;id&quot;:&quot;Field_Intro&quot;},{&quot;label&quot;:&quot;Платёж&quot;,&quot;type&quot;:&quot;textfield&quot;,&quot;key&quot;:&quot;paymentId&quot;,&quot;readonly&quot;:true,&quot;id&quot;:&quot;Field_PaymentId&quot;},{&quot;label&quot;:&quot;Сумма&quot;,&quot;type&quot;:&quot;number&quot;,&quot;key&quot;:&quot;amount&quot;,&quot;readonly&quot;:true,&quot;id&quot;:&quot;Field_Amount&quot;,&quot;layout&quot;:{&quot;columns&quot;:8}},{&quot;label&quot;:&quot;Валюта&quot;,&quot;type&quot;:&quot;textfield&quot;,&quot;key&quot;:&quot;currency&quot;,&quot;readonly&quot;:true,&quot;id&quot;:&quot;Field_Currency&quot;,&quot;layout&quot;:{&quot;columns&quot;:8}},{&quot;label&quot;:&quot;Клиент&quot;,&quot;type&quot;:&quot;textfield&quot;,&quot;key&quot;:&quot;clientId&quot;,&quot;readonly&quot;:true,&quot;id&quot;:&quot;Field_ClientId&quot;,&quot;layout&quot;:{&quot;columns&quot;:8}},{&quot;label&quot;:&quot;Продавец&quot;,&quot;type&quot;:&quot;textfield&quot;,&quot;key&quot;:&quot;counterpartyId&quot;,&quot;readonly&quot;:true,&quot;id&quot;:&quot;Field_CounterpartyId&quot;,&quot;layout&quot;:{&quot;columns&quot;:8}},{&quot;label&quot;:&quot;Решение&quot;,&quot;type&quot;:&quot;radio&quot;,&quot;key&quot;:&quot;reviewDecision&quot;,&quot;values&quot;:[{&quot;label&quot;:&quot;Разрешить&quot;,&quot;value&quot;:&quot;ALLOW&quot;},{&quot;label&quot;:&quot;Запретить&quot;,&quot;value&quot;:&quot;DENY&quot;}],&quot;validate&quot;:{&quot;required&quot;:true},&quot;id&quot;:&quot;Field_Decision&quot;}],&quot;type&quot;:&quot;default&quot;,&quot;id&quot;:&quot;ManualReviewForm&quot;,&quot;executionPlatform&quot;:&quot;Camunda Cloud&quot;,&quot;executionPlatformVersion&quot;:&quot;8.5.0&quot;,&quot;schemaVersion&quot;:16}</zeebe:userTaskForm>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="StartEvent_PaymentInitiated" name="Платёж инициирован">
+      <bpmn:outgoing>Flow_Start_Create</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_PaymentInitiated" messageRef="Message_PaymentInitiated" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_CreatePayment" name="Создать платёж">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CREATE_PAYMENT" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start_Create</bpmn:incoming>
+      <bpmn:outgoing>Flow_Create_Hold</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_HoldFunds" name="Заморозить деньги">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="HOLD_FUNDS" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Create_Hold</bpmn:incoming>
+      <bpmn:outgoing>Flow_Hold_Checks</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Boundary_FundsHoldDeclined" name="Заморозка не прошла" attachedToRef="Task_HoldFunds">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=rejectReason" target="rejectReason" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_HoldDeclined_Reject</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Boundary_FundsHoldDeclined_Def" errorRef="Error_FundsHoldDeclined" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Boundary_HoldCompensation" name="Компенсация заморозки" attachedToRef="Task_HoldFunds">
+      <bpmn:compensateEventDefinition id="Boundary_HoldCompensation_Def" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_ReleaseFunds" name="Разморозить деньги" isForCompensation="true">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="RELEASE_FUNDS" retries="10" />
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:subProcess id="SubProcess_Checks" name="Проверки">
+      <bpmn:incoming>Flow_Hold_Checks</bpmn:incoming>
+      <bpmn:outgoing>Flow_Checks_Transfer</bpmn:outgoing>
+      <bpmn:startEvent id="StartEvent_Checks" name="Начать проверки">
+        <bpmn:outgoing>Flow_ChecksStart_Fork</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:parallelGateway id="Gateway_ChecksFork" name="Запустить проверки">
+        <bpmn:incoming>Flow_ChecksStart_Fork</bpmn:incoming>
+        <bpmn:outgoing>Flow_Fork_Fraud</bpmn:outgoing>
+        <bpmn:outgoing>Flow_Fork_External</bpmn:outgoing>
+      </bpmn:parallelGateway>
+      <bpmn:serviceTask id="Task_CheckFraud" name="Проверить в антифроде">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="CHECK_FRAUD" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_Fork_Fraud</bpmn:incoming>
+        <bpmn:outgoing>Flow_Fraud_Answered</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:exclusiveGateway id="Gateway_FraudAnswered" name="Ответ за 3 с?">
+        <bpmn:incoming>Flow_Fraud_Answered</bpmn:incoming>
+        <bpmn:outgoing>Flow_FraudAnswered_Yes</bpmn:outgoing>
+        <bpmn:outgoing>Flow_FraudCutOff</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:exclusiveGateway id="Gateway_FraudDecision" name="Решение антифрода?">
+        <bpmn:incoming>Flow_FraudAnswered_Yes</bpmn:incoming>
+        <bpmn:outgoing>Flow_FraudAllow</bpmn:outgoing>
+        <bpmn:outgoing>Flow_FraudDeny</bpmn:outgoing>
+        <bpmn:outgoing>Flow_FraudManual</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="EndEvent_FraudDenied" name="Запрет">
+        <bpmn:incoming>Flow_FraudDeny</bpmn:incoming>
+        <bpmn:errorEventDefinition id="EndEvent_FraudDenied_Def" errorRef="Error_CheckDenied" />
+      </bpmn:endEvent>
+      <bpmn:userTask id="Task_ManualReview" name="Ручная проверка">
+        <bpmn:extensionElements>
+          <zeebe:formDefinition formKey="camunda-forms:bpmn:ManualReviewForm" />
+          <zeebe:assignmentDefinition candidateGroups="security" />
+          <zeebe:taskSchedule dueDate="=now() + duration(if manualReviewTimeout = null then &quot;PT20M&quot; else manualReviewTimeout)" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_FraudManual</bpmn:incoming>
+        <bpmn:outgoing>Flow_Review_Record</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:boundaryEvent id="Boundary_ReviewTimeout" name="20 мин" attachedToRef="Task_ManualReview">
+        <bpmn:outgoing>Flow_ReviewTimeout_CutOff</bpmn:outgoing>
+        <bpmn:timerEventDefinition id="Boundary_ReviewTimeout_Def">
+          <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">=if manualReviewTimeout = null then &quot;PT20M&quot; else manualReviewTimeout</bpmn:timeDuration>
+        </bpmn:timerEventDefinition>
+      </bpmn:boundaryEvent>
+      <bpmn:intermediateThrowEvent id="Event_ReviewCutOff" name="Cut-off: разрешено">
+        <bpmn:extensionElements>
+          <zeebe:ioMapping>
+            <zeebe:output source="=true" target="cutOff" />
+          </zeebe:ioMapping>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_ReviewTimeout_CutOff</bpmn:incoming>
+        <bpmn:outgoing>Flow_ReviewCutOff_Merge</bpmn:outgoing>
+      </bpmn:intermediateThrowEvent>
+      <bpmn:serviceTask id="Task_RecordReviewDecision" name="Сохранить решение оператора">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="RECORD_REVIEW_DECISION" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_Review_Record</bpmn:incoming>
+        <bpmn:outgoing>Flow_Record_Decision</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:exclusiveGateway id="Gateway_ReviewDecision" name="Решение оператора?">
+        <bpmn:incoming>Flow_Record_Decision</bpmn:incoming>
+        <bpmn:outgoing>Flow_ReviewAllow</bpmn:outgoing>
+        <bpmn:outgoing>Flow_ReviewDeny</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="EndEvent_ReviewDenied" name="Запрет">
+        <bpmn:incoming>Flow_ReviewDeny</bpmn:incoming>
+        <bpmn:errorEventDefinition id="EndEvent_ReviewDenied_Def" errorRef="Error_CheckDenied" />
+      </bpmn:endEvent>
+      <bpmn:exclusiveGateway id="Gateway_ReviewMerge" name="Ручная проверка пройдена">
+        <bpmn:incoming>Flow_ReviewCutOff_Merge</bpmn:incoming>
+        <bpmn:incoming>Flow_ReviewAllow</bpmn:incoming>
+        <bpmn:outgoing>Flow_ReviewMerge_FraudMerge</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:exclusiveGateway id="Gateway_FraudMerge" name="Антифрод пройден">
+        <bpmn:incoming>Flow_FraudCutOff</bpmn:incoming>
+        <bpmn:incoming>Flow_FraudAllow</bpmn:incoming>
+        <bpmn:incoming>Flow_ReviewMerge_FraudMerge</bpmn:incoming>
+        <bpmn:outgoing>Flow_FraudMerge_Join</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:serviceTask id="Task_CheckExternal" name="Внешние проверки">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="CHECK_EXTERNAL" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_Fork_External</bpmn:incoming>
+        <bpmn:outgoing>Flow_External_Answered</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:exclusiveGateway id="Gateway_ExternalAnswered" name="Ответ за 3 с?">
+        <bpmn:incoming>Flow_External_Answered</bpmn:incoming>
+        <bpmn:outgoing>Flow_ExternalAnswered_Yes</bpmn:outgoing>
+        <bpmn:outgoing>Flow_ExternalCutOff</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:exclusiveGateway id="Gateway_ExternalDecision" name="Решение внешних проверок?">
+        <bpmn:incoming>Flow_ExternalAnswered_Yes</bpmn:incoming>
+        <bpmn:outgoing>Flow_ExternalAllow</bpmn:outgoing>
+        <bpmn:outgoing>Flow_ExternalDeny</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="EndEvent_ExternalDenied" name="Запрет">
+        <bpmn:incoming>Flow_ExternalDeny</bpmn:incoming>
+        <bpmn:errorEventDefinition id="EndEvent_ExternalDenied_Def" errorRef="Error_CheckDenied" />
+      </bpmn:endEvent>
+      <bpmn:exclusiveGateway id="Gateway_ExternalMerge" name="Внешние проверки пройдены">
+        <bpmn:incoming>Flow_ExternalCutOff</bpmn:incoming>
+        <bpmn:incoming>Flow_ExternalAllow</bpmn:incoming>
+        <bpmn:outgoing>Flow_ExternalMerge_Join</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:parallelGateway id="Gateway_ChecksJoin" name="Обе проверки пройдены">
+        <bpmn:incoming>Flow_FraudMerge_Join</bpmn:incoming>
+        <bpmn:incoming>Flow_ExternalMerge_Join</bpmn:incoming>
+        <bpmn:outgoing>Flow_Join_DecidedByCutOff</bpmn:outgoing>
+      </bpmn:parallelGateway>
+      <bpmn:exclusiveGateway id="Gateway_DecidedByCutOff" name="Решено по cut-off?" default="Flow_NoCutOff_Passed">
+        <bpmn:incoming>Flow_Join_DecidedByCutOff</bpmn:incoming>
+        <bpmn:outgoing>Flow_CutOff_Recheck</bpmn:outgoing>
+        <bpmn:outgoing>Flow_NoCutOff_Passed</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:serviceTask id="Task_RecheckDecisions" name="Повторно запросить решения проверок">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="RECHECK_DECISIONS" />
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_CutOff_Recheck</bpmn:incoming>
+        <bpmn:outgoing>Flow_Recheck_LateDeny</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:exclusiveGateway id="Gateway_LateDeny" name="Пришёл запрет?" default="Flow_LateDeny_No">
+        <bpmn:incoming>Flow_Recheck_LateDeny</bpmn:incoming>
+        <bpmn:outgoing>Flow_LateDeny_Yes</bpmn:outgoing>
+        <bpmn:outgoing>Flow_LateDeny_No</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:endEvent id="EndEvent_LateDenied" name="Запрет">
+        <bpmn:incoming>Flow_LateDeny_Yes</bpmn:incoming>
+        <bpmn:errorEventDefinition id="EndEvent_LateDenied_Def" errorRef="Error_CheckDenied" />
+      </bpmn:endEvent>
+      <bpmn:endEvent id="EndEvent_ChecksPassed" name="Проверки пройдены">
+        <bpmn:incoming>Flow_NoCutOff_Passed</bpmn:incoming>
+        <bpmn:incoming>Flow_LateDeny_No</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_ChecksStart_Fork" sourceRef="StartEvent_Checks" targetRef="Gateway_ChecksFork" />
+      <bpmn:sequenceFlow id="Flow_Fork_Fraud" sourceRef="Gateway_ChecksFork" targetRef="Task_CheckFraud" />
+      <bpmn:sequenceFlow id="Flow_Fork_External" sourceRef="Gateway_ChecksFork" targetRef="Task_CheckExternal" />
+      <bpmn:sequenceFlow id="Flow_Fraud_Answered" sourceRef="Task_CheckFraud" targetRef="Gateway_FraudAnswered" />
+      <bpmn:sequenceFlow id="Flow_FraudAnswered_Yes" name="да" sourceRef="Gateway_FraudAnswered" targetRef="Gateway_FraudDecision">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=fraudDecision != &quot;CUT_OFF&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_FraudCutOff" name="нет ответа за 3 с (cut-off)" sourceRef="Gateway_FraudAnswered" targetRef="Gateway_FraudMerge">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=fraudDecision = &quot;CUT_OFF&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_FraudAllow" name="разрешено" sourceRef="Gateway_FraudDecision" targetRef="Gateway_FraudMerge">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=fraudDecision = &quot;ALLOW&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_FraudDeny" name="запрет" sourceRef="Gateway_FraudDecision" targetRef="EndEvent_FraudDenied">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=fraudDecision = &quot;DENY&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_FraudManual" name="ручная проверка" sourceRef="Gateway_FraudDecision" targetRef="Task_ManualReview">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=fraudDecision = &quot;MANUAL&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_Review_Record" sourceRef="Task_ManualReview" targetRef="Task_RecordReviewDecision" />
+      <bpmn:sequenceFlow id="Flow_ReviewTimeout_CutOff" sourceRef="Boundary_ReviewTimeout" targetRef="Event_ReviewCutOff" />
+      <bpmn:sequenceFlow id="Flow_ReviewCutOff_Merge" sourceRef="Event_ReviewCutOff" targetRef="Gateway_ReviewMerge" />
+      <bpmn:sequenceFlow id="Flow_Record_Decision" sourceRef="Task_RecordReviewDecision" targetRef="Gateway_ReviewDecision" />
+      <bpmn:sequenceFlow id="Flow_ReviewAllow" name="разрешено" sourceRef="Gateway_ReviewDecision" targetRef="Gateway_ReviewMerge">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=reviewDecision = &quot;ALLOW&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_ReviewDeny" name="запрет" sourceRef="Gateway_ReviewDecision" targetRef="EndEvent_ReviewDenied">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=reviewDecision = &quot;DENY&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_ReviewMerge_FraudMerge" sourceRef="Gateway_ReviewMerge" targetRef="Gateway_FraudMerge" />
+      <bpmn:sequenceFlow id="Flow_FraudMerge_Join" sourceRef="Gateway_FraudMerge" targetRef="Gateway_ChecksJoin" />
+      <bpmn:sequenceFlow id="Flow_External_Answered" sourceRef="Task_CheckExternal" targetRef="Gateway_ExternalAnswered" />
+      <bpmn:sequenceFlow id="Flow_ExternalAnswered_Yes" name="да" sourceRef="Gateway_ExternalAnswered" targetRef="Gateway_ExternalDecision">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=externalDecision != &quot;CUT_OFF&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_ExternalCutOff" name="нет ответа за 3 с (cut-off)" sourceRef="Gateway_ExternalAnswered" targetRef="Gateway_ExternalMerge">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=externalDecision = &quot;CUT_OFF&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_ExternalAllow" name="разрешено" sourceRef="Gateway_ExternalDecision" targetRef="Gateway_ExternalMerge">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=externalDecision = &quot;ALLOW&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_ExternalDeny" name="запрет" sourceRef="Gateway_ExternalDecision" targetRef="EndEvent_ExternalDenied">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=externalDecision = &quot;DENY&quot;</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_ExternalMerge_Join" sourceRef="Gateway_ExternalMerge" targetRef="Gateway_ChecksJoin" />
+      <bpmn:sequenceFlow id="Flow_Join_DecidedByCutOff" sourceRef="Gateway_ChecksJoin" targetRef="Gateway_DecidedByCutOff" />
+      <bpmn:sequenceFlow id="Flow_CutOff_Recheck" name="да" sourceRef="Gateway_DecidedByCutOff" targetRef="Task_RecheckDecisions">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=cutOff = true</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_NoCutOff_Passed" name="нет" sourceRef="Gateway_DecidedByCutOff" targetRef="EndEvent_ChecksPassed" />
+      <bpmn:sequenceFlow id="Flow_Recheck_LateDeny" sourceRef="Task_RecheckDecisions" targetRef="Gateway_LateDeny" />
+      <bpmn:sequenceFlow id="Flow_LateDeny_Yes" name="да" sourceRef="Gateway_LateDeny" targetRef="EndEvent_LateDenied">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=recheckDenied = true</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_LateDeny_No" name="нет" sourceRef="Gateway_LateDeny" targetRef="EndEvent_ChecksPassed" />
+    </bpmn:subProcess>
+    <bpmn:boundaryEvent id="Boundary_ChecksDenied" name="Запрет" attachedToRef="SubProcess_Checks">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=if fraudDecision = &quot;DENY&quot; then &quot;FRAUD&quot; else if reviewDecision = &quot;DENY&quot; then &quot;MANUAL_REVIEW&quot; else &quot;EXTERNAL&quot;" target="rejectReason" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_ChecksDenied_Reject</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Boundary_ChecksDenied_Def" errorRef="Error_CheckDenied" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_Transfer" name="Списать и перевести продавцу">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="TRANSFER_TO_COUNTERPARTY" retries="1" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Checks_Transfer</bpmn:incoming>
+      <bpmn:outgoing>Flow_Transfer_NotifyClient</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Boundary_TransferDeclined" name="Перевод отклонён" attachedToRef="Task_Transfer">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=&quot;TRANSFER_DECLINED&quot;" target="rejectReason" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_TransferDeclined_Reject</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Boundary_TransferDeclined_Def" errorRef="Error_TransferDeclined" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Boundary_TransferStatusUnknown" name="Ответ потерян" attachedToRef="Task_Transfer">
+      <bpmn:outgoing>Flow_TransferUnknown_Status</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="Boundary_TransferStatusUnknown_Def" errorRef="Error_TransferStatusUnknown" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_CheckTransferStatus" name="Уточнить статус перевода">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="CHECK_TRANSFER_STATUS" retries="10" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_TransferUnknown_Status</bpmn:incoming>
+      <bpmn:outgoing>Flow_Status_Decision</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_TransferDone" name="Перевод прошёл?">
+      <bpmn:incoming>Flow_Status_Decision</bpmn:incoming>
+      <bpmn:outgoing>Flow_TransferDone_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_TransferDone_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_NotifyClientCompleted" name="Уведомить клиента">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_CLIENT" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="PAYMENT_COMPLETED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_TransferDone_Yes</bpmn:incoming>
+      <bpmn:incoming>Flow_Transfer_NotifyClient</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotifyClient_CutOff</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_CutOffApplied" name="Проведено по cut-off?" default="Flow_CutOff_No">
+      <bpmn:incoming>Flow_NotifyClient_CutOff</bpmn:incoming>
+      <bpmn:outgoing>Flow_CutOff_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CutOff_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_NotifySecurityCutOff" name="Уведомить безопасность">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_SECURITY" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="CUT_OFF_APPROVED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_CutOff_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotifySecurity_Completed</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_PaymentCompleted" name="Платёж проведён">
+      <bpmn:incoming>Flow_CutOff_No</bpmn:incoming>
+      <bpmn:incoming>Flow_NotifySecurity_Completed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_RejectMerge" name="Отказ">
+      <bpmn:incoming>Flow_ChecksDenied_Reject</bpmn:incoming>
+      <bpmn:incoming>Flow_TransferDeclined_Reject</bpmn:incoming>
+      <bpmn:outgoing>Flow_RejectMerge_Return</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_FundsFree" name="Деньги у клиента">
+      <bpmn:incoming>Flow_HoldDeclined_Reject</bpmn:incoming>
+      <bpmn:incoming>Flow_Return_FundsFree</bpmn:incoming>
+      <bpmn:outgoing>Flow_FundsFree_Reject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateThrowEvent id="Event_ReturnMoney" name="Вернуть деньги клиенту">
+      <bpmn:incoming>Flow_TransferDone_No</bpmn:incoming>
+      <bpmn:incoming>Flow_RejectMerge_Return</bpmn:incoming>
+      <bpmn:outgoing>Flow_Return_FundsFree</bpmn:outgoing>
+      <bpmn:compensateEventDefinition id="Event_ReturnMoney_Def" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:serviceTask id="Task_RejectPayment" name="Отклонить платёж">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="REJECT_PAYMENT" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_FundsFree_Reject</bpmn:incoming>
+      <bpmn:outgoing>Flow_Reject_NotifyClient</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_NotifyClientRejected" name="Уведомить клиента">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_CLIENT" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="PAYMENT_REJECTED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Reject_NotifyClient</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotifyClient_Suspicion</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_Suspicion" name="Подозрение?" default="Flow_Suspicion_No">
+      <bpmn:incoming>Flow_NotifyClient_Suspicion</bpmn:incoming>
+      <bpmn:outgoing>Flow_Suspicion_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Suspicion_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_NotifySecurityRejected" name="Уведомить безопасность">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="NOTIFY_SECURITY" />
+        <zeebe:taskHeaders>
+          <zeebe:header key="event" value="PAYMENT_REJECTED" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Suspicion_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotifySecurity_Rejected</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_PaymentRejected" name="Платёж отклонён">
+      <bpmn:incoming>Flow_Suspicion_No</bpmn:incoming>
+      <bpmn:incoming>Flow_NotifySecurity_Rejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Start_Create" sourceRef="StartEvent_PaymentInitiated" targetRef="Task_CreatePayment" />
+    <bpmn:sequenceFlow id="Flow_Create_Hold" sourceRef="Task_CreatePayment" targetRef="Task_HoldFunds" />
+    <bpmn:sequenceFlow id="Flow_Hold_Checks" sourceRef="Task_HoldFunds" targetRef="SubProcess_Checks" />
+    <bpmn:sequenceFlow id="Flow_HoldDeclined_Reject" sourceRef="Boundary_FundsHoldDeclined" targetRef="Gateway_FundsFree" />
+    <bpmn:sequenceFlow id="Flow_Checks_Transfer" sourceRef="SubProcess_Checks" targetRef="Task_Transfer" />
+    <bpmn:sequenceFlow id="Flow_ChecksDenied_Reject" sourceRef="Boundary_ChecksDenied" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_TransferDeclined_Reject" sourceRef="Boundary_TransferDeclined" targetRef="Gateway_RejectMerge" />
+    <bpmn:sequenceFlow id="Flow_TransferUnknown_Status" sourceRef="Boundary_TransferStatusUnknown" targetRef="Task_CheckTransferStatus" />
+    <bpmn:sequenceFlow id="Flow_Status_Decision" sourceRef="Task_CheckTransferStatus" targetRef="Gateway_TransferDone" />
+    <bpmn:sequenceFlow id="Flow_TransferDone_Yes" name="да" sourceRef="Gateway_TransferDone" targetRef="Task_NotifyClientCompleted">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=transferStatus = &quot;DONE&quot;</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_TransferDone_No" name="нет" sourceRef="Gateway_TransferDone" targetRef="Event_ReturnMoney">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=transferStatus = &quot;DECLINED&quot;</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Transfer_NotifyClient" sourceRef="Task_Transfer" targetRef="Task_NotifyClientCompleted" />
+    <bpmn:sequenceFlow id="Flow_NotifyClient_CutOff" sourceRef="Task_NotifyClientCompleted" targetRef="Gateway_CutOffApplied" />
+    <bpmn:sequenceFlow id="Flow_CutOff_Yes" name="да" sourceRef="Gateway_CutOffApplied" targetRef="Task_NotifySecurityCutOff">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=cutOff = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_CutOff_No" name="нет" sourceRef="Gateway_CutOffApplied" targetRef="EndEvent_PaymentCompleted" />
+    <bpmn:sequenceFlow id="Flow_NotifySecurity_Completed" sourceRef="Task_NotifySecurityCutOff" targetRef="EndEvent_PaymentCompleted" />
+    <bpmn:sequenceFlow id="Flow_RejectMerge_Return" sourceRef="Gateway_RejectMerge" targetRef="Event_ReturnMoney" />
+    <bpmn:sequenceFlow id="Flow_Return_FundsFree" sourceRef="Event_ReturnMoney" targetRef="Gateway_FundsFree" />
+    <bpmn:sequenceFlow id="Flow_FundsFree_Reject" sourceRef="Gateway_FundsFree" targetRef="Task_RejectPayment" />
+    <bpmn:sequenceFlow id="Flow_Reject_NotifyClient" sourceRef="Task_RejectPayment" targetRef="Task_NotifyClientRejected" />
+    <bpmn:sequenceFlow id="Flow_NotifyClient_Suspicion" sourceRef="Task_NotifyClientRejected" targetRef="Gateway_Suspicion" />
+    <bpmn:sequenceFlow id="Flow_Suspicion_Yes" name="да" sourceRef="Gateway_Suspicion" targetRef="Task_NotifySecurityRejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=list contains([&quot;FRAUD&quot;, &quot;MANUAL_REVIEW&quot;, &quot;EXTERNAL&quot;], rejectReason)</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Suspicion_No" name="нет" sourceRef="Gateway_Suspicion" targetRef="EndEvent_PaymentRejected" />
+    <bpmn:sequenceFlow id="Flow_NotifySecurity_Rejected" sourceRef="Task_NotifySecurityRejected" targetRef="EndEvent_PaymentRejected" />
+    <bpmn:textAnnotation id="TextAnnotation_PointOfNoReturn">
+      <bpmn:text>Точка невозврата</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_PointOfNoReturn" sourceRef="TextAnnotation_PointOfNoReturn" targetRef="Task_Transfer" />
+    <bpmn:association id="Association_Compensation" associationDirection="One" sourceRef="Boundary_HoldCompensation" targetRef="Task_ReleaseFunds" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_PaymentProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_PaymentProcess" bpmnElement="payment-process">
+      <bpmndi:BPMNShape id="StartEvent_PaymentInitiated_di" bpmnElement="StartEvent_PaymentInitiated">
+        <dc:Bounds x="82" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="55" y="224" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CreatePayment_di" bpmnElement="Task_CreatePayment">
+        <dc:Bounds x="150" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HoldFunds_di" bpmnElement="Task_HoldFunds">
+        <dc:Bounds x="300" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_HoldCompensation_di" bpmnElement="Boundary_HoldCompensation">
+        <dc:Bounds x="302" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="226" y="248" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_FundsHoldDeclined_di" bpmnElement="Boundary_FundsHoldDeclined">
+        <dc:Bounds x="364" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="392" y="262" width="66" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReleaseFunds_di" bpmnElement="Task_ReleaseFunds">
+        <dc:Bounds x="250" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubProcess_Checks_di" bpmnElement="SubProcess_Checks" isExpanded="false">
+        <dc:Bounds x="475" y="160" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_ChecksDenied_di" bpmnElement="Boundary_ChecksDenied">
+        <dc:Bounds x="542" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="570" y="262" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Transfer_di" bpmnElement="Task_Transfer">
+        <dc:Bounds x="655" y="160" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_PointOfNoReturn_di" bpmnElement="TextAnnotation_PointOfNoReturn">
+        <dc:Bounds x="660" y="85" width="125" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_TransferDeclined_di" bpmnElement="Boundary_TransferDeclined">
+        <dc:Bounds x="662" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="688" y="262" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_TransferStatusUnknown_di" bpmnElement="Boundary_TransferStatusUnknown">
+        <dc:Bounds x="737" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="765" y="262" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckTransferStatus_di" bpmnElement="Task_CheckTransferStatus">
+        <dc:Bounds x="740" y="300" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TransferDone_di" bpmnElement="Gateway_TransferDone" isMarkerVisible="true">
+        <dc:Bounds x="905" y="315" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="958" y="360" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyClientCompleted_di" bpmnElement="Task_NotifyClientCompleted">
+        <dc:Bounds x="880" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CutOffApplied_di" bpmnElement="Gateway_CutOffApplied" isMarkerVisible="true">
+        <dc:Bounds x="1025" y="175" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1012" y="230" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifySecurityCutOff_di" bpmnElement="Task_NotifySecurityCutOff">
+        <dc:Bounds x="1100" y="50" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_PaymentCompleted_di" bpmnElement="EndEvent_PaymentCompleted">
+        <dc:Bounds x="1232" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1220" y="224" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RejectMerge_di" bpmnElement="Gateway_RejectMerge" isMarkerVisible="true">
+        <dc:Bounds x="655" y="445" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="645" y="500" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReturnMoney_di" bpmnElement="Event_ReturnMoney">
+        <dc:Bounds x="912" y="452" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="885" y="494" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_FundsFree_di" bpmnElement="Gateway_FundsFree" isMarkerVisible="true">
+        <dc:Bounds x="995" y="445" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="985" y="418" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RejectPayment_di" bpmnElement="Task_RejectPayment">
+        <dc:Bounds x="1070" y="430" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyClientRejected_di" bpmnElement="Task_NotifyClientRejected">
+        <dc:Bounds x="1210" y="430" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Suspicion_di" bpmnElement="Gateway_Suspicion" isMarkerVisible="true">
+        <dc:Bounds x="1355" y="445" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1345" y="500" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifySecurityRejected_di" bpmnElement="Task_NotifySecurityRejected">
+        <dc:Bounds x="1420" y="310" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_PaymentRejected_di" bpmnElement="EndEvent_PaymentRejected">
+        <dc:Bounds x="1552" y="452" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1540" y="494" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_Create_di" bpmnElement="Flow_Start_Create">
+        <di:waypoint x="118" y="200" />
+        <di:waypoint x="150" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Create_Hold_di" bpmnElement="Flow_Create_Hold">
+        <di:waypoint x="250" y="200" />
+        <di:waypoint x="300" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Hold_Checks_di" bpmnElement="Flow_Hold_Checks">
+        <di:waypoint x="400" y="200" />
+        <di:waypoint x="475" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_HoldDeclined_Reject_di" bpmnElement="Flow_HoldDeclined_Reject">
+        <di:waypoint x="382" y="258" />
+        <di:waypoint x="382" y="560" />
+        <di:waypoint x="1020" y="560" />
+        <di:waypoint x="1020" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Checks_Transfer_di" bpmnElement="Flow_Checks_Transfer">
+        <di:waypoint x="585" y="200" />
+        <di:waypoint x="655" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ChecksDenied_Reject_di" bpmnElement="Flow_ChecksDenied_Reject">
+        <di:waypoint x="560" y="258" />
+        <di:waypoint x="560" y="470" />
+        <di:waypoint x="655" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TransferDeclined_Reject_di" bpmnElement="Flow_TransferDeclined_Reject">
+        <di:waypoint x="680" y="258" />
+        <di:waypoint x="680" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TransferUnknown_Status_di" bpmnElement="Flow_TransferUnknown_Status">
+        <di:waypoint x="755" y="258" />
+        <di:waypoint x="755" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Status_Decision_di" bpmnElement="Flow_Status_Decision">
+        <di:waypoint x="860" y="340" />
+        <di:waypoint x="905" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TransferDone_Yes_di" bpmnElement="Flow_TransferDone_Yes">
+        <di:waypoint x="930" y="315" />
+        <di:waypoint x="930" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="270" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TransferDone_No_di" bpmnElement="Flow_TransferDone_No">
+        <di:waypoint x="930" y="365" />
+        <di:waypoint x="930" y="452" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="400" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Transfer_NotifyClient_di" bpmnElement="Flow_Transfer_NotifyClient">
+        <di:waypoint x="785" y="200" />
+        <di:waypoint x="880" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotifyClient_CutOff_di" bpmnElement="Flow_NotifyClient_CutOff">
+        <di:waypoint x="980" y="200" />
+        <di:waypoint x="1025" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CutOff_Yes_di" bpmnElement="Flow_CutOff_Yes">
+        <di:waypoint x="1050" y="175" />
+        <di:waypoint x="1050" y="90" />
+        <di:waypoint x="1100" y="90" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1030" y="125" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CutOff_No_di" bpmnElement="Flow_CutOff_No">
+        <di:waypoint x="1075" y="200" />
+        <di:waypoint x="1232" y="200" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1140" y="183" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotifySecurity_Completed_di" bpmnElement="Flow_NotifySecurity_Completed">
+        <di:waypoint x="1200" y="90" />
+        <di:waypoint x="1250" y="90" />
+        <di:waypoint x="1250" y="182" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RejectMerge_Return_di" bpmnElement="Flow_RejectMerge_Return">
+        <di:waypoint x="705" y="470" />
+        <di:waypoint x="912" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Return_FundsFree_di" bpmnElement="Flow_Return_FundsFree">
+        <di:waypoint x="948" y="470" />
+        <di:waypoint x="995" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FundsFree_Reject_di" bpmnElement="Flow_FundsFree_Reject">
+        <di:waypoint x="1045" y="470" />
+        <di:waypoint x="1070" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Reject_NotifyClient_di" bpmnElement="Flow_Reject_NotifyClient">
+        <di:waypoint x="1170" y="470" />
+        <di:waypoint x="1210" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotifyClient_Suspicion_di" bpmnElement="Flow_NotifyClient_Suspicion">
+        <di:waypoint x="1310" y="470" />
+        <di:waypoint x="1355" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Suspicion_Yes_di" bpmnElement="Flow_Suspicion_Yes">
+        <di:waypoint x="1380" y="445" />
+        <di:waypoint x="1380" y="350" />
+        <di:waypoint x="1420" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1360" y="390" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Suspicion_No_di" bpmnElement="Flow_Suspicion_No">
+        <di:waypoint x="1405" y="470" />
+        <di:waypoint x="1552" y="470" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1470" y="453" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotifySecurity_Rejected_di" bpmnElement="Flow_NotifySecurity_Rejected">
+        <di:waypoint x="1520" y="350" />
+        <di:waypoint x="1570" y="350" />
+        <di:waypoint x="1570" y="452" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_Compensation_di" bpmnElement="Association_Compensation">
+        <di:waypoint x="320" y="258" />
+        <di:waypoint x="320" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_PointOfNoReturn_di" bpmnElement="Association_PointOfNoReturn">
+        <di:waypoint x="720" y="115" />
+        <di:waypoint x="720" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Checks">
+    <bpmndi:BPMNPlane id="BPMNPlane_Checks" bpmnElement="SubProcess_Checks">
+      <bpmndi:BPMNShape id="StartEvent_Checks_di" bpmnElement="StartEvent_Checks">
+        <dc:Bounds x="567" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="550" y="324" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ChecksFork_di" bpmnElement="Gateway_ChecksFork">
+        <dc:Bounds x="625" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="615" y="240" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckFraud_di" bpmnElement="Task_CheckFraud">
+        <dc:Bounds x="710" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_FraudAnswered_di" bpmnElement="Gateway_FraudAnswered" isMarkerVisible="true">
+        <dc:Bounds x="845" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="835" y="330" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_FraudDecision_di" bpmnElement="Gateway_FraudDecision" isMarkerVisible="true">
+        <dc:Bounds x="935" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="987" y="328" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_FraudDenied_di" bpmnElement="EndEvent_FraudDenied">
+        <dc:Bounds x="942" y="207" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="984" y="218" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ManualReview_di" bpmnElement="Task_ManualReview">
+        <dc:Bounds x="1010" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Boundary_ReviewTimeout_di" bpmnElement="Boundary_ReviewTimeout">
+        <dc:Bounds x="1072" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1100" y="500" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReviewCutOff_di" bpmnElement="Event_ReviewCutOff">
+        <dc:Bounds x="1192" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1165" y="582" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RecordReviewDecision_di" bpmnElement="Task_RecordReviewDecision">
+        <dc:Bounds x="1150" y="400" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReviewDecision_di" bpmnElement="Gateway_ReviewDecision" isMarkerVisible="true">
+        <dc:Bounds x="1290" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1280" y="470" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_ReviewDenied_di" bpmnElement="EndEvent_ReviewDenied">
+        <dc:Bounds x="1297" y="342" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1339" y="353" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReviewMerge_di" bpmnElement="Gateway_ReviewMerge" isMarkerVisible="true">
+        <dc:Bounds x="1405" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1440" y="468" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_FraudMerge_di" bpmnElement="Gateway_FraudMerge" isMarkerVisible="true">
+        <dc:Bounds x="1465" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1499" y="330" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckExternal_di" bpmnElement="Task_CheckExternal">
+        <dc:Bounds x="710" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ExternalAnswered_di" bpmnElement="Gateway_ExternalAnswered" isMarkerVisible="true">
+        <dc:Bounds x="845" y="615" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="835" y="590" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ExternalDecision_di" bpmnElement="Gateway_ExternalDecision" isMarkerVisible="true">
+        <dc:Bounds x="935" y="615" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="987" y="668" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_ExternalDenied_di" bpmnElement="EndEvent_ExternalDenied">
+        <dc:Bounds x="942" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="984" y="553" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ExternalMerge_di" bpmnElement="Gateway_ExternalMerge" isMarkerVisible="true">
+        <dc:Bounds x="1545" y="615" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1585" y="665" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ChecksJoin_di" bpmnElement="Gateway_ChecksJoin">
+        <dc:Bounds x="1545" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1528" y="238" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_DecidedByCutOff_di" bpmnElement="Gateway_DecidedByCutOff" isMarkerVisible="true">
+        <dc:Bounds x="1655" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1645" y="238" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RecheckDecisions_di" bpmnElement="Task_RecheckDecisions">
+        <dc:Bounds x="1620" y="400" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LateDeny_di" bpmnElement="Gateway_LateDeny" isMarkerVisible="true">
+        <dc:Bounds x="1805" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1760" y="470" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_LateDenied_di" bpmnElement="EndEvent_LateDenied">
+        <dc:Bounds x="1812" y="512" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1854" y="523" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_ChecksPassed_di" bpmnElement="EndEvent_ChecksPassed">
+        <dc:Bounds x="1812" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1795" y="250" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_ChecksStart_Fork_di" bpmnElement="Flow_ChecksStart_Fork">
+        <di:waypoint x="603" y="300" />
+        <di:waypoint x="625" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Fork_Fraud_di" bpmnElement="Flow_Fork_Fraud">
+        <di:waypoint x="675" y="300" />
+        <di:waypoint x="710" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Fork_External_di" bpmnElement="Flow_Fork_External">
+        <di:waypoint x="650" y="325" />
+        <di:waypoint x="650" y="640" />
+        <di:waypoint x="710" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Fraud_Answered_di" bpmnElement="Flow_Fraud_Answered">
+        <di:waypoint x="810" y="300" />
+        <di:waypoint x="845" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FraudAnswered_Yes_di" bpmnElement="Flow_FraudAnswered_Yes">
+        <di:waypoint x="895" y="300" />
+        <di:waypoint x="935" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="907" y="283" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FraudCutOff_di" bpmnElement="Flow_FraudCutOff">
+        <di:waypoint x="870" y="275" />
+        <di:waypoint x="870" y="165" />
+        <di:waypoint x="1490" y="165" />
+        <di:waypoint x="1490" y="275" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="882" y="147" width="150" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FraudAllow_di" bpmnElement="Flow_FraudAllow">
+        <di:waypoint x="985" y="300" />
+        <di:waypoint x="1465" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1100" y="283" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FraudDeny_di" bpmnElement="Flow_FraudDeny">
+        <di:waypoint x="960" y="275" />
+        <di:waypoint x="960" y="243" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="966" y="251" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FraudManual_di" bpmnElement="Flow_FraudManual">
+        <di:waypoint x="960" y="325" />
+        <di:waypoint x="960" y="440" />
+        <di:waypoint x="1010" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="900" y="380" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Review_Record_di" bpmnElement="Flow_Review_Record">
+        <di:waypoint x="1110" y="440" />
+        <di:waypoint x="1150" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReviewTimeout_CutOff_di" bpmnElement="Flow_ReviewTimeout_CutOff">
+        <di:waypoint x="1090" y="498" />
+        <di:waypoint x="1090" y="560" />
+        <di:waypoint x="1192" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReviewCutOff_Merge_di" bpmnElement="Flow_ReviewCutOff_Merge">
+        <di:waypoint x="1228" y="560" />
+        <di:waypoint x="1430" y="560" />
+        <di:waypoint x="1430" y="465" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Record_Decision_di" bpmnElement="Flow_Record_Decision">
+        <di:waypoint x="1260" y="440" />
+        <di:waypoint x="1290" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReviewAllow_di" bpmnElement="Flow_ReviewAllow">
+        <di:waypoint x="1340" y="440" />
+        <di:waypoint x="1405" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1342" y="423" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReviewDeny_di" bpmnElement="Flow_ReviewDeny">
+        <di:waypoint x="1315" y="415" />
+        <di:waypoint x="1315" y="378" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1321" y="389" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReviewMerge_FraudMerge_di" bpmnElement="Flow_ReviewMerge_FraudMerge">
+        <di:waypoint x="1455" y="440" />
+        <di:waypoint x="1490" y="440" />
+        <di:waypoint x="1490" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FraudMerge_Join_di" bpmnElement="Flow_FraudMerge_Join">
+        <di:waypoint x="1515" y="300" />
+        <di:waypoint x="1545" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_External_Answered_di" bpmnElement="Flow_External_Answered">
+        <di:waypoint x="810" y="640" />
+        <di:waypoint x="845" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ExternalAnswered_Yes_di" bpmnElement="Flow_ExternalAnswered_Yes">
+        <di:waypoint x="895" y="640" />
+        <di:waypoint x="935" y="640" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="907" y="623" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ExternalCutOff_di" bpmnElement="Flow_ExternalCutOff">
+        <di:waypoint x="870" y="665" />
+        <di:waypoint x="870" y="720" />
+        <di:waypoint x="1570" y="720" />
+        <di:waypoint x="1570" y="665" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="882" y="724" width="150" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ExternalAllow_di" bpmnElement="Flow_ExternalAllow">
+        <di:waypoint x="985" y="640" />
+        <di:waypoint x="1545" y="640" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1100" y="623" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ExternalDeny_di" bpmnElement="Flow_ExternalDeny">
+        <di:waypoint x="960" y="615" />
+        <di:waypoint x="960" y="578" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="966" y="589" width="38" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ExternalMerge_Join_di" bpmnElement="Flow_ExternalMerge_Join">
+        <di:waypoint x="1570" y="615" />
+        <di:waypoint x="1570" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Join_DecidedByCutOff_di" bpmnElement="Flow_Join_DecidedByCutOff">
+        <di:waypoint x="1595" y="300" />
+        <di:waypoint x="1655" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CutOff_Recheck_di" bpmnElement="Flow_CutOff_Recheck">
+        <di:waypoint x="1680" y="325" />
+        <di:waypoint x="1680" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1688" y="352" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoCutOff_Passed_di" bpmnElement="Flow_NoCutOff_Passed">
+        <di:waypoint x="1705" y="300" />
+        <di:waypoint x="1812" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1746" y="283" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Recheck_LateDeny_di" bpmnElement="Flow_Recheck_LateDeny">
+        <di:waypoint x="1740" y="440" />
+        <di:waypoint x="1805" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LateDeny_Yes_di" bpmnElement="Flow_LateDeny_Yes">
+        <di:waypoint x="1830" y="465" />
+        <di:waypoint x="1830" y="512" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1838" y="480" width="16" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LateDeny_No_di" bpmnElement="Flow_LateDeny_No">
+        <di:waypoint x="1830" y="415" />
+        <di:waypoint x="1830" y="318" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1838" y="360" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
